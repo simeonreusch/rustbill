@@ -1,0 +1,246 @@
+basepath: "/Users/simeon/Files/WTS"
+
+stamp_url: https://waytoosoon.de
+
+mailconfig:
+  email: simeon.reusch@waytoosoon.de
+  email_from: Simeon Reusch
+  imap_server: imap.strato.de
+  imap_port: 993
+
+bill_config:
+  header: Rechnung für IT-Dienstleistungen
+  company: WayTooSoon
+  name: Simeon Reusch
+  street: Tempelhofer Damm 159
+  city: Berlin
+  country: DE
+  postcode: "12099"
+  telephone: "+49 151 23019954"
+  telephone_concise: "++4915123019954"
+  email: simeon.reusch@waytoosoon.de
+  company_web: waytoosoon.de
+  vat_id: DE365567873
+  tax_id: 21/491/01100
+
+bank_config:
+  bank_name: Deutsche Kreditbank
+  bic: BYLADEM1001
+  iban: "DE14 1203 0000 1014 4940 72"
+  name: Simeon Reusch
+
+companies:
+
+  Allerland:
+    dir: Allerland
+    email: rechnung@allerland-programm.de
+    subject: Rechnung IT-Dienstleistungen Aller.Land
+    iban: 
+      - DE98430609671184351303
+      - DE28430609671184351302
+    greeting_to: Hi Elisa,
+    greeting_from: "Liebe Grüße\nSimeon\n\n"
+    hourly_fee: 65
+    address:
+      name: "Projekteure bakv gGmbH - Aller.Land"
+      city: Berlin
+      postcode: "10827"
+      addressline: Crellestraße 29–30
+
+  Confex:
+    dir: Confex
+    iban: DE13100701240013859400
+    email: diana.ellermann@confex.de
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Hi Diana,
+    greeting_from: "Liebe Grüße\nSimeon\n\n"
+    hourly_fee: 75
+    address:
+      name: "Confex Training GmbH"
+      city: Berlin
+      postcode: "10963"
+      addressline: Stresemannstraße 78
+
+  Intagus:
+    dir: Intagus
+    iban: DE59100708480484402300
+    email: buchhaltung@intagus.de
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Sehr geehrte Damen und Herren,
+    greeting_from: "Mit besten Grüßen\nSimeon Reusch\n\n"
+    hourly_fee: 75
+    address:
+      name: "Intagus GmbH"
+      city: Berlin
+      postcode: "14052"
+      addressline: Oldenburgallee 10
+
+  Kunstraum:
+    dir: Kunstraum_Kreuzberg
+    iban: DE26100000000010001521
+    email: gentner@galerie-im-turm.net
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Hallo Melina,
+    greeting_from: "Beste Grüße\nSimeon\n\n"
+    hourly_fee: 75
+    address:
+      name: "Kunstraum Kreuzberg/Bethanien"
+      city: Berlin
+      postcode: "10997"
+      addressline: Mariannenplatz 2
+
+  Bacon:
+    dir: Bacon
+    iban: DE11100400000200896900
+    email: f.strehlau@bacon-pension-trust.ag
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Moin Frank,
+    greeting_from: "Liebe Grüße\nSimeon\n\n"
+    hourly_fee: 75
+    address:
+      name: "bacon pension trust AG"
+      city: Potsdam
+      postcode: "14467"
+      addressline: Menzelstraße 14
+
+  Kondak:
+    dir: Kondak
+    iban: DE56300606010002466830
+    email: info@zahnarztpraxis-dirk-kondak.de
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Sehr geehrte Damen und Herren,
+    greeting_from: "Mit besten Grüßen\nSimeon\n\n"
+    hourly_fee: 75
+    address:
+      name: "Zahnarztpraxis Dirk Kondak & Team"
+      city: Berlin
+      postcode: "10365"
+      addressline: Frankfurter Allee 151
+
+  Sattler:
+    dir: Sattler
+    iban: DE74602500100001032651
+    email: gerh.sattler@gmx.de
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Hallo Gerhard,
+    greeting_from: "Liebe Grüße\nSimeon\n\n"
+    hourly_fee: 75
+    address:
+      name: "Gerhard Sattler"
+      city: Dornstetten
+      postcode: "72280"
+      addressline: Zollstockstraße 2
+
+  TRAFO:
+    dir: TRAFO
+    iban: DE55430609671184351301
+    email: elisa.kneisel@trafo-programm.de
+    subject: Rechnung IT-Dienstleistungen TRAFO
+    greeting_to: Hi Elisa,
+    greeting_from: "Liebe Grüße\nSimeon\n\n"
+    hourly_fee: 65
+    address:
+      name: "Projekteure bakv gGmbH - TRAFO"
+      city: Berlin
+      postcode: "10827"
+      addressline: Crellestraße 29–30
+
+  Le:
+    dir: Le
+    iban: DE42800537620382312854
+    email: h-fischer-stb@t-online.de
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Sehr geehrter Herr Fischer,
+    greeting_from: "Mit besten Grüßen\nSimeon Reusch\n\n"
+    hourly_fee: 75
+    address:
+      name: "Heiko Fischer"
+      city: Halle/Saale
+      postcode: "06110"
+      addressline: Huttenstraße 58
+
+  RedDoc:
+    dir: Sonstige Kunden/RedDoc
+    iban: DE53100500000191288241
+    email: invoice@reddoc-films.de
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Hallo Sören,
+    greeting_from: "Beste Grüße\nSimeon\n\n"
+    hourly_fee: 75
+    address:
+      name: "RedDoc Films GmbH"
+      city: Berlin
+      postcode: "10967"
+      addressline: Grimmstr. 29
+
+  Siemer:
+    dir: Sonstige Kunden/Siemer
+    iban: DE91100500000191273589
+    email: isabelaguirre@musethica.org
+    subject: Rechnung IT-Dienstleistungen
+    greeting_to: Sehr geehrte Frau Siemer,
+    greeting_from: "Beste Grüße\nSimeon Reusch\n\n"
+    hourly_fee: 75
+    address:
+      name: "Musethica e.V."
+      city: Berlin
+      postcode: "10963"
+      addressline: "Großbeerenstraße 71"
+
+deductions:
+
+  hetzner:
+    name: Hetzner Online GmbH
+    iban: DE44701600000000142108
+    type: hosting
+  
+  alwyzon:
+    name: 
+      - Alwyzon/Wien//at
+      - Alwyzon/Wien/../at
+      - Alwyzon/Wien//at / Deutsche Kreditbank AG
+    iban: none
+    type: hosting
+  
+  bradlerkrantz:
+    name: 
+      - Bradler . Krantz GmbH . Co. KG
+    iban: none
+    type: hosting
+
+  openai:
+    name: Openai/Httpsopenai C/ca/US
+    iban: none
+    type: operating_expenditure
+
+  db:
+    name: DB Vertrieb GmbH/Berlin//DE
+    iban: none
+    type: travel
+
+  strato:
+    name: Strato AG
+    iban: DE26380400070100679001
+    type: hosting
+
+  
+  hu-berlin:
+    name: Humboldt-Universitat zu Berlin Haus
+    iban: DE64100100100651823104
+    type: privat
+
+  heise:
+    name: Heise Medien GmbH . Co. KG
+    iban: none
+    type: privat
+
+deduction_types_to_ignore:
+  - ignore
+  - private
+
+deduction_type_to_skr04:
+  hosting:
+    skr04: "6835"
+    text: Hosting
+  office_equipment: 
+    skr04: "6815"
