@@ -1,0 +1,7 @@
+/target
+*.DS_Store
+certs/
+config.yaml
+*.pdf
+*.csv
+Cargo.lock
