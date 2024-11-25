@@ -1,8 +1,8 @@
-use std::path::Path;
+use std::{path::Path};
 use clap::Parser;
 use rust_decimal::Decimal;
 use rusty_money::{iso::{self}, Round, Money};
-use std::error::Error;
+// use std::error::Error;
 use config_reader::{ExtractError, read_config};
 use thiserror::Error;
 mod pdf_gen;
@@ -12,6 +12,7 @@ mod config_reader;
 mod qrcode;
 mod sign;
 mod ebill;
+mod calculate;
 
 #[derive(Debug, Error)]
 pub enum AmountCalcs{
@@ -20,8 +21,6 @@ pub enum AmountCalcs{
     #[error("Extraction error")]
     ExtractError(#[from] ExtractError),
 }
-
-type CalculationResult<T> = Result<T, AmountCalcs>;
 type CurrencyResult<T> = Result<T, AmountCalcs>;
 
 #[derive(Parser, Debug)]
@@ -37,56 +36,16 @@ struct Args {
 }
 
 
-fn calculate_amount_net(config_path: &str, company_ref:&str, minutes_total: &Result<i32, Box<dyn Error>>) -> CalculationResult<f64> {
-    let hourly_fee = config_reader::get_hourly_fee(config_path, company_ref)?;
-    match minutes_total {
-        Ok(minutes_total) => {
-            let minutes_total_float: f64 = *minutes_total as f64;
-            let amount_net: f64 = minutes_total_float / 60. * hourly_fee;
-            Ok(amount_net)
-        },
-        Err(_) => {Err(AmountCalcs::CalculationError)}
-    }
-}
+fn to_euro_string(currencyfloat: &f64) -> CurrencyResult<String> {
 
-fn calculate_vat(amount_net: &CalculationResult<f64>) -> CalculationResult<f64> {
-    let vat_rate: f64 = 0.19;
-
-    match amount_net {
-        Ok(amount_net) => {
-            let amount_vat: f64 = amount_net * vat_rate;
-            Ok(amount_vat)
-        },
-        Err(_)  => {Err(AmountCalcs::CalculationError)}
-    }
-}
-
-fn calculate_amount_total(amount_net: &CalculationResult<f64>, amount_vat: &CalculationResult<f64>) -> CalculationResult<f64> {
-    match amount_net {
-        Ok(amount_net) => {
-            match amount_vat {
-                Ok(amount_vat) => {
-                    let amount_total: f64 = amount_net + amount_vat;
-                    Ok(amount_total)
-                }, Err(_)  => {Err(AmountCalcs::CalculationError)}
-            }
-        }, Err(_)  => {Err(AmountCalcs::CalculationError)}
-    }
-}
-
-fn to_euro_string(currencyfloat: &CalculationResult<f64>) -> CurrencyResult<String> {
-    match currencyfloat {
-        Ok(currencyfloat) => {
-            let decimal_amount = Decimal::from_f64_retain(*currencyfloat).unwrap();
-            let eur_amount = Money::from_decimal(decimal_amount, iso::EUR);
-            let eur_amount_rounded = eur_amount.round(2, Round::HalfEven);
-            let eur_amount_rounded_value = *eur_amount_rounded.amount();
-            let raw_string = eur_amount_rounded_value.to_string();
+    let decimal_amount = Decimal::from_f64_retain(*currencyfloat).unwrap();
+    let eur_amount = Money::from_decimal(decimal_amount, iso::EUR);
+    let eur_amount_rounded = eur_amount.round(2, Round::HalfEven);
+    let eur_amount_rounded_value = *eur_amount_rounded.amount();
+    let raw_string = eur_amount_rounded_value.to_string();
             // let formatted_str = raw_string.replace('.', ",");
 
-            Ok(raw_string)
-        }, Err(_)  => {Err(AmountCalcs::CalculationError)}
-    }
+    Ok(raw_string)
 }
 
 
@@ -115,14 +74,31 @@ fn main() {
     let company = String::from(company_str);
     let billnr: i32 = 4;
 
-    let minutes_total = csv_reader::read_csv(&csv_path);
-    let amount_net = calculate_amount_net(config_path, &company, &minutes_total);
-    let amount_vat = calculate_vat(&amount_net);
-    let amount_total = calculate_amount_total(&amount_net, &amount_vat);
-    let decimal_amount_str = to_euro_string(&amount_total).unwrap();
-    let amount_vat = amount_vat.unwrap();
-    let amount_total = amount_total.unwrap();
+    let minutes_res = csv_reader::read_csv(&csv_path);
+    let minutes_total: i32;
 
+    match minutes_res {
+        Ok(v) => minutes_total = v,
+        Err(e) => {
+            eprintln!("An error occured while extracting the minutes total: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    let amounts_res = calculate::calculate_amounts(&config_path, &company, &minutes_total);
+    let amount_net: f64;
+    let amount_vat: f64;
+    let amount_total: f64;
+
+    match amounts_res {
+        Ok(v) => {amount_net = v.0; amount_vat = v.1; amount_total = v.2},
+        Err(e) => {
+            eprintln!("An error occured while calculating the amounts: {}", e);
+            std::process::exit(1);
+        }
+    }
+
+    let decimal_amount_str = to_euro_string(&amount_total).unwrap();
 
     let config = read_config(&config_path).unwrap();
     let bank_config = config.bank_config;
@@ -145,8 +121,7 @@ fn main() {
 
     let _ = sign::sign_pdf(pdf_data);
 
-    let xml = ebill::create_xml(amount_net.unwrap(), amount_vat, amount_total, billdate, bill_config);
+    let xml = ebill::create_xml(amount_net, amount_vat, amount_total, billdate, bill_config);
     
-    // println!("{:?}", invoice_builder);
 
 }
