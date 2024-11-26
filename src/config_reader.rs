@@ -57,7 +57,7 @@ pub fn read_config(path: &str) -> Result<Config, ExtractError> {
     Ok(config)
 }
 
-
+// FIXME: THIS NEED TO BE BETTER
 pub fn get_hourly_fee(path: &str, company: &str) -> Result<f64, ExtractError> {
     let config = read_config_yaml(path);
 

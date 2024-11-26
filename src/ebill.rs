@@ -1,12 +1,11 @@
 use zugferd::{InvoiceBuilder,InvoiceTypeCode,CountryCode,CurrencyCode,SpecificationLevel};
 use chrono::NaiveDate;
 use crate::config_reader::BillConfig;
+use crate::calculate::Amounts;
 
 
-
-pub fn create_xml(amount_net: f64, amount_vat: f64, amount_total: f64, bill_date: NaiveDate, bill_config: BillConfig) -> String {
-
-
+pub fn create_xml(amounts: Amounts, bill_date: NaiveDate, bill_config: BillConfig) -> String {
+    
     let mut invoice_builder = InvoiceBuilder::new();
 
     invoice_builder.set_business_process("process1")
@@ -24,10 +23,10 @@ pub fn create_xml(amount_net: f64, amount_vat: f64, amount_total: f64, bill_date
         .set_buyers_order_specified_document("OD-2024-001")
         .set_invoice_currency_code(CurrencyCode::Euro);
 
-    invoice_builder.set_monetary_summation_tax_basis_total_amount(amount_net)
-    .set_monetary_summation_tax_total_amount(amount_vat)
-    .set_monetary_summation_grand_total_amount(amount_total)
-    .set_monetary_summation_due_payable_amount(amount_total);
+    invoice_builder.set_monetary_summation_tax_basis_total_amount(amounts.net)
+    .set_monetary_summation_tax_total_amount(amounts.vat)
+    .set_monetary_summation_grand_total_amount(amounts.total)
+    .set_monetary_summation_due_payable_amount(amounts.total);
 
     let mut xml_string: String = String::new();
 

@@ -4,3 +4,5 @@ certs/
 *.pdf
 *.csv
 Cargo.lock
+data/*
+rustbill

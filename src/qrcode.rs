@@ -36,10 +36,4 @@ pub fn create_qrcode(bank_config: BankConfig, amount_total: &str, company: &str,
 
     Ok(image)
 
-    // let res = fs::write("/Users/simeon/Desktop/test.svg", image);
-
-    // match image {
-    //     Ok(image) => Ok(image), 
-    //     Err(_)  => Err(QRGenErrors::SVGSaveError)
-    // }
 }
