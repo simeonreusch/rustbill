@@ -4,10 +4,17 @@ use typst::foundations::{Bytes, Dict, IntoValue};
 use typst::foundations::Smart;
 use typst::text::Font;
 use typst_pdf::{self, PdfOptions, PdfStandard, PdfStandards};
+use thiserror::Error;
 
 static TEMPLATE_FILE: &str = include_str!("../templates/invoice.typ");
 static FONT: &[u8] = include_bytes!("../templates/Akrobat-Regular.otf");
 static FONTBOLD: &[u8] = include_bytes!("../templates/Akrobat-Bold.otf");
+
+#[derive(Debug, Error)]
+pub enum PdfError {
+    #[error("PDF compile error")]
+    PdfCompileError(#[from] typst_as_lib::TypstAsLibError),
+}
 
 #[derive(Debug, Clone, IntoValue, IntoDict)]
 pub struct Content {
@@ -25,7 +32,7 @@ impl From<Content> for Dict {
     }
 }
 
-pub fn generate_pdf(data: Content) -> Vec<u8> {
+pub fn generate_pdf(data: Content) -> Result<Vec<u8>, PdfError> {
     let font = Font::new(Bytes::from(FONT), 0)
         .expect("Could not parse font!");
 
@@ -36,15 +43,15 @@ pub fn generate_pdf(data: Content) -> Vec<u8> {
 
     let doc = template
         .compile_with_input(data)
-        .output
-        .expect("typst::compile() returned an error!");
+        .output?;
+
 
     let pdf_standard = [PdfStandard::A_2b];
     let pdf_standards = PdfStandards::new(&pdf_standard).unwrap();
     let pdf_options: PdfOptions = PdfOptions {standards: pdf_standards, page_ranges: None, timestamp: None, ident: Smart::Auto};
     let pdf = typst_pdf::pdf(&doc, &pdf_options)
         .expect("Could not generate pdf.");
-    pdf
+    Ok(pdf)
 }
 
 

@@ -63,7 +63,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         qrcode,
     };
 
-    let pdf_data = pdf_gen::generate_pdf(pdf_content);
+    let pdf_data = pdf_gen::generate_pdf(pdf_content)?;
     println!("Generated pdf");
 
     let _ = sign::sign_pdf(pdf_data);
