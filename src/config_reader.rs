@@ -57,34 +57,13 @@ pub fn read_config(path: &str) -> Result<Config, ExtractError> {
 
 // FIXME: THIS NEED TO BE BETTER
 pub fn get_hourly_fee(path: &str, company: &str) -> Result<f64, ExtractError> {
-    let config = read_config_yaml(path);
+    let config = read_config_yaml(path)?;
 
-    match config {
-        Ok(config) => {
+    let Some(companies) = config.get("companies") else {return Err(ExtractError::MissingData)};
+    let Some(company) = companies.get(company) else {return Err(ExtractError::MissingData)};
+    let Some(hourly_fee_val) = company.get("hourly_fee") else {return Err(ExtractError::MissingData)};
+    let Some(hourly_fee) = hourly_fee_val.as_f64() else {return Err(ExtractError::MissingData)};
 
-        if let Some(companies) = config.get("companies") {
-            if let Some(company) = companies.get(company) {
-                if let Some(hourly_fee_val) = company.get("hourly_fee") {
-                    if let Some(hourly_fee) = hourly_fee_val.as_f64() {
-                        Ok(hourly_fee as f64)
-                    }
-                    else {
-                        Ok(75.0)
-                        }
-                }
-                else {
-                    Err(ExtractError::MissingData)
-                }
-            }
-            else {
-                Err(ExtractError::MissingData)
-            }
-        }
-        else {
-            Err(ExtractError::MissingData)
-        }
-    },
-    Err(_) => Err(ExtractError::MissingData)
-}
-
+    println!("hourly fee is {} EUR", hourly_fee);
+    Ok(hourly_fee)
 }
