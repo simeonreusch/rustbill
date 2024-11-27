@@ -1,13 +1,18 @@
 use crate::config_reader;
+use rust_decimal::Decimal;
+use rusty_money::{iso::{self}, Round, Money};
 use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum AmountCalcs{
+    #[error("No total amount could be computed")]
+    CalculationError,
     #[error("Extraction error")]
     ExtractError(#[from] config_reader::ExtractError),
 }
 
 type CalculationResult<T> = Result<T, AmountCalcs>;
+type CurrencyResult<T> = Result<T, AmountCalcs>;
 
 pub struct Amounts {
     pub net: f64,
@@ -40,4 +45,15 @@ pub fn calculate_amounts(config_path: &str, company:&str, minutes_total: &i32) -
 
     let amounts =  Amounts {net: amount_net, vat: amount_vat, total: amount_total};
     Ok(amounts)
+}
+
+pub fn to_euro_string(currencyfloat: &f64) -> CurrencyResult<String> {
+
+    let decimal_amount = Decimal::from_f64_retain(*currencyfloat).ok_or(AmountCalcs::CalculationError)?;
+    let eur_amount = Money::from_decimal(decimal_amount, iso::EUR);
+    let eur_amount_rounded = eur_amount.round(2, Round::HalfEven);
+    let eur_amount_rounded_value = *eur_amount_rounded.amount();
+    let raw_string = eur_amount_rounded_value.to_string();
+
+    Ok(raw_string)
 }

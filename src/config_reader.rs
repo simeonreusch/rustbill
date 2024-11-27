@@ -10,8 +10,6 @@ pub enum ExtractError {
     YamlParseError(#[from] YamlError),
     #[error("Missing data")]
     MissingData,
-    #[error("Expected a float")]
-    ExpectedFloat,
     #[error("Error reading yaml")]
     Error(#[from] std::io::Error)
 }
