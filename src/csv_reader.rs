@@ -1,9 +1,9 @@
 use std::{
     path::Path,
     error::Error,
+    fs,
     fs::File,
 };
-use serde_json;
 use csv::ReaderBuilder;
 use serde::{Deserialize, Serialize};
 use chrono::NaiveDate;
@@ -64,3 +64,20 @@ pub fn extract_minutes_total(records: &Vec<Record>) -> Result<i32, Box<dyn Error
     Ok(minutes_total)
 }
 
+pub fn find_all_companies(dir_path: &Path) -> Result<Vec<String>, Box<dyn Error>> {
+    let entries = fs::read_dir(dir_path)?;
+
+    let csv_files: Vec<String> = entries
+        .filter_map(Result::ok)
+        .filter_map(|entry| {
+            let path = entry.path();
+            if path.is_file() && path.extension().and_then(|ext| ext.to_str()) == Some("csv") {
+                path.file_stem().and_then(|name| name.to_str()).map(|s| s.to_string())
+            }
+            else {
+                None
+            }
+        })
+        .collect();
+    Ok(csv_files)
+}

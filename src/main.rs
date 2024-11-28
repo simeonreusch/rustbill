@@ -15,30 +15,50 @@ mod calculate;
 #[command(name = "cli_parser")]
 #[command(about = "A parser with a default argument (the company) and an optional date flag")]
 struct Args {
-    input: String,
+    #[arg(short, long)]
+    company: Option<String>,
     #[arg(short, long, default_value_t = String::from(""))] // Optional date in YYYY-MM-DD format
     date: String,
 }
 
+// fn process_company(company_str: String, date: &str) -> Result<(), Box<dyn std::error::Error>> {
+    
+// }
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
-
     let date = args.date;
-    let company_str = args.input;
-    let mut file_str = company_str.clone();
-    if !file_str.ends_with(".csv") {
-        file_str.push_str(".csv");
-    }
-
-    let basedir = Path::new("/Users/simeon/rustbill/data");
-    let config_path = "config.yaml";
-    let config = read_config(&config_path)?;
 
     let billdate = date_utils::parse_date_or_default(&date)?;
     let billdate_formatted = billdate.format("%d.%m.%Y").to_string();
     let duedate = date_utils::calculate_due_date(billdate);
     let duedate_formatted = duedate?.format("%d.%m.%Y").to_string();
+
+    let basedir = Path::new("data");
+    let config_path = "config.yaml";
+    let config = read_config(&config_path)?;
+
+    let mut all_companies: Vec<String> = Vec::new();
+
+    let company_str = args.company;
+
+    match company_str {
+        Some(s) => {
+            all_companies.push(s)
+        },
+        None => {
+            all_companies = csv_reader::find_all_companies(basedir)?;
+        }
+    }
+    println!("Running for companies: {:?}", all_companies);
+
+    let company_str = "Kondak".to_string();
+
+    let mut file_str = company_str.clone();
+    if !file_str.ends_with(".csv") {
+        file_str.push_str(".csv");
+    }
 
     let csv_path = basedir.join(file_str);
     let company = String::from(company_str);

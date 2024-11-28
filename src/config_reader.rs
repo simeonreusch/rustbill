@@ -45,6 +45,7 @@ fn read_config_yaml(path: &str) -> Result<Value, ExtractError> {
 
     // Parse the YAML string into a Config
     let config: Value = serde_yaml::from_str(&yaml_content)?;
+
     Ok(config)
 }
 
@@ -52,6 +53,7 @@ pub fn read_config(path: &str) -> Result<Config, ExtractError> {
     let yaml_content = fs::read_to_string(path)?;
 
     let config: Config = serde_yaml::from_str(&yaml_content)?;
+
     Ok(config)
 }
 
