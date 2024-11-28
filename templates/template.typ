@@ -265,17 +265,18 @@
     }
   }
 
-#let sum_minutes(array,idx) = {
+#let sum_minutes(array, idx) = {
   for entry in array {
     let minutes = entry.at(idx)
     (int(minutes),)
   }.sum()
 }
 
-#let sum_amounts(array,idx) = {
+#let sum_amounts(array, idx, hourly_fee) = {
   for entry in array {
     let minutes = entry.at(idx)
-    (float(minutes),)
+    let amount = float(minutes) / 60 * hourly_fee
+    (amount,)
   }.sum()
 }
 
@@ -477,24 +478,42 @@
   table.hline(stroke: wtsgreen + 0.5pt),
 )
 
-#let overview_detailed(data, minutes_total, amount_total) = table(
+#let format_unsplit_str(input) = {
+  // input
+  str(input + ",00 €")
+}
+
+#let format_split_str(input1, input2) = {
+  input1 + "," + input2 + " €"
+}
+
+#let format_currency(input) = {
+  let input = calc.round(float(input), digits: 2)
+  let input_str = str(input)
+  let split_str = input_str.split(".")
+  let len = split_str.len()
+  if len == 1 {format_unsplit_str(split_str.at(0))} else {format_split_str(split_str.at(0), split_str.at(1))}
+}
+
+#let overview_detailed(data, minutes_total, amount_total, pos, hourly_fee) = table(
   align: (left, left, left, right, right),
-  columns: (auto,auto,auto,auto, auto),
+  columns: (auto,auto,auto, auto, auto),
   table.hline(stroke: wtsgreen + 0.5pt),
   table.vline(stroke: wtsgreen + 0.5pt),
   table.header(
-    [*Pos.*], [*Datum*],[*Bezeichnung*], [*Minuten*],[*Betrag*]
+    [*Pos.*], [*Datum*],[*Bezeichnung*], [*Minuten*], [*Betrag*]
   ),
-  ..for (.., pos, minutes, amount, job, year, month, day) in data {
-
-    let date = datetime(day: int(day), month: int(month), year: int(year)).display("[day].[month].[year]")
-    let amount_curr = format_currency(float(amount))
-    (str(int(pos)+1), date, job, minutes, amount_curr + " €")
-     
+  // let pos = 0,
+  ..for (date, minutes, description) in data {
+    // let date = datetime(day: int(day), month: int(month), year: int(year)).display("[day].[month].[year]")
+    let amount = (float(minutes)/60*hourly_fee)
+    let amount_formatted = format_currency((amount))
+    (str(int(pos)), date, description, minutes, amount_formatted)
+    pos = pos + 1
   }, 
   table.vline(stroke: wtsgreen + 0.5pt),
   table.hline(stroke: wtsgreen + 0.5pt),
   table.cell(colspan: 3)[*Summe*],
-  [*#minutes_total*],[*#format_currency(amount_total) €*],
+  [*#minutes_total*],[*#format_currency(amount_total)*],
   table.hline(stroke: wtsgreen + 0.5pt),
 )

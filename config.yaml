@@ -78,9 +78,9 @@ companies:
   Kunstraum:
     dir: Kunstraum_Kreuzberg
     iban: DE26100000000010001521
-    email: gentner@galerie-im-turm.net
+    email: pfister@kunstraumkreuzberg.de
     subject: Rechnung IT-Dienstleistungen
-    greeting_to: Hallo Melina,
+    greeting_to: Hallo Sofía,
     greeting_from: "Beste Grüße\nSimeon\n\n"
     hourly_fee: 75
     address:

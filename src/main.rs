@@ -61,6 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         date: billdate_formatted,
         due: duedate_formatted,
         qrcode,
+        hourly_fee: amounts.hourly_fee
     };
 
     let pdf_data = pdf_gen::generate_pdf(pdf_content)?;
@@ -71,5 +72,4 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let xml = ebill::create_xml(amounts, billdate, config.bill_config);
 
     Ok(())
-    
 }

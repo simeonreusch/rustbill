@@ -3,8 +3,9 @@ use std::{
     error::Error,
     fs::File,
 };
+use serde_json;
 use csv::ReaderBuilder;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use chrono::NaiveDate;
 use chrono::Datelike;
 

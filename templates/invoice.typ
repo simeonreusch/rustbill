@@ -1,7 +1,6 @@
 #import sys: inputs
 #import "templates/template.typ": letter-simple, sum_minutes, sum_amounts, format_currency, configread, footerdef, minutes_to_hours, overview_short, overview_detailed
 
-// #let last_index = content.len() - 1
 
 #let recipient = inputs.at("company")
 #let invoice_nr = inputs.at("billnr")
@@ -9,8 +8,11 @@
 #let billdate = inputs.at("date")
 #let due_date = inputs.at("due")
 #let qrcode = inputs.at("qrcode")
+#let hourly_fee = inputs.at("hourly_fee")
 
-#let data = csv("/data.csv")
+#let data_with_header = csv("data/" + recipient + ".csv", delimiter: ";")
+#let data = data_with_header.slice(1)
+
 #set text(lang: "de")
 #let wtsgreen = rgb("99d0ba")
 #let config = configread(
@@ -56,7 +58,7 @@ Sehr geehrte Damen und Herren,
 anbei meine Rechnung bezüglich Einrichtung und Wartung von IT-Infrastruktur bei Ihnen. Regelmäßige Tätigkeiten und Support-Dienstleistungen sind getrennt ausgewiesen. Eine detaillierte Stundenübersicht befindet sich auf der nächsten Seite.
 
 #let minutes_total = sum_minutes(data, 1)
-#let amount_total = sum_amounts(data,2)
+#let amount_total = sum_amounts(data, 1, hourly_fee)
 #let hours_total = minutes_to_hours(minutes_total)
 #let amount_with_vat = vat + amount_total
 
@@ -66,6 +68,7 @@ anbei meine Rechnung bezüglich Einrichtung und Wartung von IT-Infrastruktur bei
   fill: (x, y) =>
     if y == 0 { wtsgreen }
 )
+
 
 #overview_short(hours_total, amount_total, vat, amount_with_vat, config)
 
@@ -99,5 +102,6 @@ diesen Code mit ihrer Banking-App scannen.
   inset: (right: 1.5em)
 )
 #set par(justify: false)
-#overview_detailed(data, minutes_total, amount_total)
+
+#overview_detailed(data, minutes_total, amount_total, 1, hourly_fee)
 
