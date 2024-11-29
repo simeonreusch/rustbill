@@ -96,7 +96,7 @@ fn delete_entry_by_id(id: &i32) -> DBResult<()> {
     let conn = get_connection()?;
 
     println!("Delete existing DB entry with ID: {:?}", id);
-    let delete_str = format!("DELET FROM bill WHERE id == '{id}'", id=id);
+    let delete_str = "DELETE FROM bill WHERE id = ?1".to_string();
 
     conn.execute(&delete_str, params![id])?;
 
@@ -135,8 +135,6 @@ fn query_db(query_str: &str) -> DBResult<Vec<DBEntry>> {
 
 fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
 
-    let conn = get_connection()?;
-
     let query_str = format!("SELECT * FROM bill WHERE company == '{company}' AND month == '{month}'", company=company, month = billdate.month());
 
     let bills = query_db(&query_str)?;
@@ -151,4 +149,17 @@ fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
     println!("Found existing db entries with IDs: {:#?}", extracted_ids);
 
     Ok(extracted_ids)
+}
+
+pub fn print_all_db_entries() -> DBResult<()> {
+
+    let query_str = "SELECT * FROM bill".to_string();
+
+    let bills = query_db(&query_str)?;
+
+    for bill in bills {
+        println!("{:?}\n", bill);
+    }
+
+    Ok(())
 }

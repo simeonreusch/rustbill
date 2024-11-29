@@ -7,6 +7,7 @@ mailconfig:
   email_from: Simeon Reusch
   imap_server: imap.strato.de
   imap_port: 993
+  email_text: anbei wie immer Rechnung und Stundenübersicht für IT-Dienstleistungen im Oktober 2024.
 
 bill_config:
   header: Rechnung für IT-Dienstleistungen

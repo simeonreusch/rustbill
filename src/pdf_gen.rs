@@ -67,7 +67,7 @@ pub fn generate_pdf(data: Content) -> Result<Vec<u8>, PdfError> {
     Ok(pdf)
 }
 
-pub fn save_pdf(data: Vec<u8>, pdf_dir: &Path, billdate: NaiveDate, company: &str) -> Result<(), PdfError> {
+pub fn save_pdf(data: &Vec<u8>, pdf_dir: &Path, billdate: NaiveDate, company: &str) -> Result<String, PdfError> {
     let pdf_filename = format!(
         "{date}_Rechnung_{company}_{month_pretty}_{year}.pdf",
         date = billdate.format("%Y-%m-%d"),
@@ -83,7 +83,7 @@ pub fn save_pdf(data: Vec<u8>, pdf_dir: &Path, billdate: NaiveDate, company: &st
     let _ = fs::create_dir_all(pdf_dir);
 
     let mut pdf_file = File::create(&outpath)?;
-    let _ = pdf_file.write_all(&data);
+    let _ = pdf_file.write_all(data);
 
-    Ok(())
+    Ok(pdf_filename)
 }

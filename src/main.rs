@@ -11,6 +11,7 @@ mod sign;
 mod ebill;
 mod calculate;
 mod db;
+mod mail;
 
 
 #[derive(Parser, Debug)]
@@ -22,10 +23,6 @@ struct Args {
     #[arg(short, long, default_value_t = String::from(""))] // Optional date in YYYY-MM-DD format
     date: String,
 }
-
-// fn process_company(company_str: String, date: &str) -> Result<(), Box<dyn std::error::Error>> {
-    
-// }
 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -96,7 +93,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             continue;
         }
 
-        let amounts = calculate::calculate_amounts(&config_path, &company, &minutes_total)?;
+        let company_config = config_reader::get_company_config(&config_path, &company_str)?;
+
+        let amounts = calculate::calculate_amounts(&minutes_total, &company_config.hourly_fee)?;
 
         let decimal_amount_str = calculate::to_euro_string(&amounts.total)?;
 
@@ -118,15 +117,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let signed_pdf_data = sign::sign_pdf(pdf_data)?;
 
-        let _ = pdf_gen::save_pdf(signed_pdf_data, pdfdir, billdate, &company_str)?;
+        let pdf_filename = pdf_gen::save_pdf(&signed_pdf_data, pdfdir, billdate, &company_str)?;
 
 
         let xml = ebill::create_xml(&amounts, billdate, &config.bill_config);
 
         let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str);
 
+
+        let _ = mail::create_mail_draft(&config.mailconfig, &company_config, signed_pdf_data, &pdf_filename);
+        
         billcounter += 1;
         println!("{:}: Done\n", &company_str);
     }
+
+    println!("\nTABLE AFTER EVERYTHING:\n");
+
+    let _ = db::print_all_db_entries()?;
     Ok(())
 }
