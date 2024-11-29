@@ -12,7 +12,7 @@ pub enum SignError {
     X509CertificateError(#[from] x509_certificate::X509CertificateError),
 }
 
-pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<(), SignError> {
+pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<Vec<u8>, SignError> {
     let cert_str = std::fs::read_to_string("./certs/cert.pem")?;
     let cert: CapturedX509Certificate = CapturedX509Certificate::from_pem(cert_str)?;
     let privkey_str = std::fs::read_to_string("./certs/key.pem")?;
@@ -23,7 +23,7 @@ pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<(), SignError> {
             user_id: "1".to_owned(),
             user_name: "Simeon Reusch".to_owned(),
             user_email: "simeon.reusch@waytoosoon.de".to_owned(),
-            user_signature: std::fs::read("./certs/asdf.png")?,
+            user_signature: std::fs::read("./certs/signature.png")?,
             user_signing_keys: signer.clone(),
         },
     ];
@@ -34,9 +34,8 @@ pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<(), SignError> {
     let pdf_file_data = pdf_signing_document
         .sign_document(users_signature_info)
         .unwrap();
+
     println!("Signed pdf");
 
-    let mut pdf_file = File::create(pdf_filename)?;
-    let _ = pdf_file.write_all(&pdf_file_data);
-    Ok(())
+    Ok(pdf_file_data)
 }

@@ -1,3 +1,8 @@
+use chrono::{NaiveDate, Locale};
+use std::path::Path;
+use std::fs;
+use std::io::Write;
+use std::fs::File;
 use derive_typst_intoval::{IntoDict, IntoValue};
 use typst_as_lib::TypstTemplate;
 use typst::foundations::{Bytes, Dict, IntoValue};
@@ -15,17 +20,20 @@ static FONTLIGHT: &[u8] = include_bytes!("../templates/Akrobat-Light.otf");
 pub enum PdfError {
     #[error("PDF compile error")]
     PdfCompileError(#[from] typst_as_lib::TypstAsLibError),
+    #[error("PDF write error")]
+    PdfWriteError(#[from] std::io::Error),
 }
 
 #[derive(Debug, Clone, IntoValue, IntoDict)]
 pub struct Content {
     pub company: String,
-    pub billnr: i32,
+    pub billnr: String,
     pub vat: f64,
     pub date: String,
     pub due: String,
     pub qrcode: String,
     pub hourly_fee: f64,
+    pub data_dir: String,
 }
 
 impl From<Content> for Dict {
@@ -59,4 +67,23 @@ pub fn generate_pdf(data: Content) -> Result<Vec<u8>, PdfError> {
     Ok(pdf)
 }
 
+pub fn save_pdf(data: Vec<u8>, pdf_dir: &Path, billdate: NaiveDate, company: &str) -> Result<(), PdfError> {
+    let pdf_filename = format!(
+        "{date}_Rechnung_{company}_{month_pretty}_{year}.pdf",
+        date = billdate.format("%Y-%m-%d"),
+        company = company,
+        month_pretty = billdate.format_localized("%B", Locale::de_DE),
+        year = billdate.format("%Y"),
+    );
 
+    let outpath = pdf_dir.join(&pdf_filename);
+
+    println!("Saving pdf to {:?}", &outpath);
+
+    let _ = fs::create_dir_all(pdf_dir);
+
+    let mut pdf_file = File::create(&outpath)?;
+    let _ = pdf_file.write_all(&data);
+
+    Ok(())
+}

@@ -31,6 +31,9 @@ pub fn get_ymd(datestr: &str) -> Result<(i32, u32, u32), Box<dyn Error>> {
 
 pub fn read_csv<P: AsRef<Path>>(path: P) -> Result<Vec<Record>, Box<dyn Error>> {
     let file = File::open(path)?;
+
+    println!("found file {:?}", file);
+
     let mut records: Vec<Record> = Vec::new();
     let mut counts: i32 = 0;
 
@@ -47,7 +50,6 @@ pub fn read_csv<P: AsRef<Path>>(path: P) -> Result<Vec<Record>, Box<dyn Error>> 
         record.month = Some(ymd.1);
         record.day = Some(ymd.2);
         counts += 1;
-        println!("{:?}", record);
         records.push(record);
     }
     println!("Found {} table entries", counts);
@@ -79,5 +81,6 @@ pub fn find_all_companies(dir_path: &Path) -> Result<Vec<String>, Box<dyn Error>
             }
         })
         .collect();
+    
     Ok(csv_files)
 }
