@@ -103,14 +103,12 @@ fn delete_entry_by_id(id: &i32) -> DBResult<()> {
     Ok(())
 }
 
-fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
+fn query_db(query_str: &str) -> DBResult<Vec<DBEntry>> {
 
     let conn = get_connection()?;
 
-    let query_str = format!("SELECT * FROM bill WHERE company == '{company}' AND month == '{month}'", company=company, month = billdate.month());
-
     let mut stmt = conn.prepare(
-    &query_str)?;
+    query_str)?;
 
     let bill_iter = stmt.query_map([], |row| {
         let res_bill = DBEntry {
@@ -132,6 +130,18 @@ fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
         bills.push(bill.unwrap());
     }
 
+    Ok(bills)
+}
+
+fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
+
+    let conn = get_connection()?;
+
+    let query_str = format!("SELECT * FROM bill WHERE company == '{company}' AND month == '{month}'", company=company, month = billdate.month());
+
+    let bills = query_db(&query_str)?;
+
+
     let extracted_ids: Vec<i32> = if !bills.is_empty() {
         bills.iter().map(|item| item.id).collect()
     } else {
@@ -142,5 +152,3 @@ fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
 
     Ok(extracted_ids)
 }
-
-// pub fn print_all_entries() -> 
