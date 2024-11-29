@@ -43,7 +43,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         month=billdate.month(),
     );
     let data_dir = &basedir_data.join(&subdir_data_str);
-    let binding = data_dir.to_string_lossy().replace("data", "pdf");
+    let binding = data_dir.to_string_lossy().replace("data", "bills");
     let pdfdir = Path::new(&binding);
 
     println!("Data dir is {:?}", data_dir);

@@ -6,3 +6,4 @@ certs/
 Cargo.lock
 data/*
 rustbill
+bills/*
