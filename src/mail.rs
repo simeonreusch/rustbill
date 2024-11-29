@@ -10,8 +10,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum MailError{
-    #[error("Placeholder")]
-    Placeholder,
     #[error("IMAP error")]
     IMAPError(#[from] imap::error::Error),
     #[error("Password error")]

@@ -1,11 +1,11 @@
-/target
+target
 *.DS_Store
-certs/
+certs
 *.pdf
 *.csv
 Cargo.lock
-data/*
+data
 rustbill
-bills/*
+bills
 db.sql
 .env
