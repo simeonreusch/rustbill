@@ -4,7 +4,7 @@ use crate::config_reader::BillConfig;
 use crate::calculate::Amounts;
 
 
-pub fn create_xml(amounts: Amounts, bill_date: NaiveDate, bill_config: &BillConfig) -> String {
+pub fn create_xml(amounts: &Amounts, bill_date: NaiveDate, bill_config: &BillConfig) -> String {
     
     let mut invoice_builder = InvoiceBuilder::new();
 

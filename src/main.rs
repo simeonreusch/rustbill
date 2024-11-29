@@ -10,6 +10,7 @@ mod qrcode;
 mod sign;
 mod ebill;
 mod calculate;
+mod db;
 
 
 #[derive(Parser, Debug)]
@@ -30,6 +31,7 @@ struct Args {
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let date = args.date;
+    db::create_db_if_needed()?;
 
     let billdate = date_utils::parse_date_or_default(&date)?;
     let billdate_formatted = billdate.format("%d.%m.%Y").to_string();
@@ -102,7 +104,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let pdf_content = pdf_gen::Content {
             company: company.to_string(),
-            billnr,
+            billnr: billnr.clone(),
             vat: amounts.vat.clone(),
             date: billdate_formatted.clone(),
             due: duedate_formatted.clone(),
@@ -119,7 +121,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let _ = pdf_gen::save_pdf(signed_pdf_data, pdfdir, billdate, &company_str)?;
 
 
-        let xml = ebill::create_xml(amounts, billdate, &config.bill_config);
+        let xml = ebill::create_xml(&amounts, billdate, &config.bill_config);
+
+        let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str);
 
         billcounter += 1;
         println!("{:}: Done\n", &company_str);
