@@ -56,7 +56,7 @@
 
 Sehr geehrte Damen und Herren,
 
-anbei meine Rechnung bezüglich Einrichtung und Wartung von IT-Infrastruktur bei Ihnen. Regelmäßige Tätigkeiten und Support-Dienstleistungen sind getrennt ausgewiesen. Eine detaillierte Stundenübersicht befindet sich auf der nächsten Seite.
+anbei meine Rechnung bezüglich Einrichtung und Wartung von IT-Infrastruktur bei Ihnen. Eine detaillierte Stundenübersicht befindet sich auf der nächsten Seite.
 
 #let minutes_total = sum_minutes(data, 1)
 #let amount_total = sum_amounts(data, 1, hourly_fee)
