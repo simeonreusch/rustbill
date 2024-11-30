@@ -1,5 +1,7 @@
 use std::path::Path;
 use clap::Parser;
+use rand::thread_rng;
+use rand::seq::SliceRandom;
 use chrono::Datelike;
 use config_reader::read_config;
 mod pdf_gen;
@@ -65,6 +67,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
     println!("Running for the following companies: {:#?}", all_companies);
+
+    // We shuffle the companies to shuffle the bill numbers
+    let mut rng = thread_rng();
+    all_companies.shuffle(&mut rng);
 
     // let mut billcounter = 1;
 

@@ -5,7 +5,7 @@ use std::{
     fs::File,
 };
 use csv::ReaderBuilder;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize};
 use chrono::NaiveDate;
 use chrono::Datelike;
 
