@@ -20,6 +20,5 @@ The idea is to have a web frontend where you track hours worked, and a list of c
 - Use the CLI with `./rustbill --help`. Without further parameters, all companies defined in your config are iterated over, and the date defaults to the last day of the current month.
 
 ## Speedup vs Python:
-
-Everything except IMAP: 50x
-IMAP: 6x
+- Everything except IMAP: 50x
+- IMAP: 6x
