@@ -14,7 +14,7 @@ The idea is to have a web frontend where you track hours worked, and a list of c
 - Upload mail draft via IMAP ✅
 
 ## Usage
-- Rename `config_example.yaml` to `config.yaml` and modify to your needs.
+- Rename `config_sample.yaml` to `config.yaml` and modify to your needs.
 - Compile with `cargo build -r`
 - Copy the binary from `target/release/rustbill` to `.`
 - Use the CLI with `./rustbill --help`. Without further parameters, all companies defined in your config are iterated over, and the date defaults to the last day of the current month.
