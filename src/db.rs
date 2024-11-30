@@ -22,6 +22,7 @@ struct DBEntry {
     bill_number: String,
     amount: f64,
     amount_str: String,
+    billnr_int: i32,
 }
 
 type DBResult<T> = Result<T, DBError>;
@@ -52,7 +53,8 @@ pub fn create_db_if_needed() -> DBResult<()> {
                 company     TEXT NOT NULL,
                 bill_number TEXT NOT NULL,
                 amount      FLOAT,
-                amount_str  TEXT NOT NULL
+                amount_str  TEXT NOT NULL,
+                billnr_int  INTEGER
             )",
             (),
         )?;
@@ -61,7 +63,7 @@ pub fn create_db_if_needed() -> DBResult<()> {
     Ok(())
 }
 
-pub fn add_to_db(company: &str, billdate: &NaiveDate, bill_number: &str, amount: &f64, amount_str: &str) -> DBResult<()> {
+pub fn add_to_db(company: &str, billdate: &NaiveDate, bill_number: &str, amount: &f64, amount_str: &str, billnr_int: &i32) -> DBResult<()> {
 
     let new_entry = DBEntry {
         id: 0,
@@ -72,6 +74,7 @@ pub fn add_to_db(company: &str, billdate: &NaiveDate, bill_number: &str, amount:
         bill_number: bill_number.to_string(),
         amount: amount.to_owned(),
         amount_str: amount_str.to_string(),
+        billnr_int: billnr_int.clone(),
     };
 
     let conn = get_connection()?;
@@ -85,8 +88,8 @@ pub fn add_to_db(company: &str, billdate: &NaiveDate, bill_number: &str, amount:
     }
 
     conn.execute(
-        "INSERT INTO bill (year, month, day, company, bill_number, amount, amount_str) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)",
-        (&new_entry.year, &new_entry.month, &new_entry.day, &new_entry.company, &new_entry.bill_number, &new_entry.amount, &new_entry.amount_str),
+        "INSERT INTO bill (year, month, day, company, bill_number, amount, amount_str, billnr_int) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+        (&new_entry.year, &new_entry.month, &new_entry.day, &new_entry.company, &new_entry.bill_number, &new_entry.amount, &new_entry.amount_str, &new_entry.billnr_int),
     )?;
 
     Ok(())
@@ -120,6 +123,7 @@ fn query_db(query_str: &str) -> DBResult<Vec<DBEntry>> {
             bill_number: row.get(5)?,
             amount: row.get(6)?,
             amount_str: row.get(7)?,
+            billnr_int: row.get(8)?,
         };
     Ok(res_bill)
     })?;
@@ -133,12 +137,25 @@ fn query_db(query_str: &str) -> DBResult<Vec<DBEntry>> {
     Ok(bills)
 }
 
-fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
-
+fn query_for_company_in_month(company: &str, billdate: &NaiveDate) -> DBResult<Vec<DBEntry>> {
     let query_str = format!("SELECT * FROM bill WHERE company == '{company}' AND month == '{month}'", company=company, month = billdate.month());
 
     let bills = query_db(&query_str)?;
 
+    Ok(bills)
+}
+
+fn query_for_month(billdate: &NaiveDate) -> DBResult<Vec<DBEntry>> {
+    let query_str = format!("SELECT * FROM bill WHERE month == '{month}'", month = billdate.month());
+
+    let bills = query_db(&query_str)?;
+
+    Ok(bills)
+}
+
+fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
+
+    let bills = query_for_company_in_month(company, billdate)?;
 
     let extracted_ids: Vec<i32> = if !bills.is_empty() {
         bills.iter().map(|item| item.id).collect()
@@ -149,6 +166,52 @@ fn get_id_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Vec<i32>> {
     println!("Found existing db entries with IDs: {:#?}", extracted_ids);
 
     Ok(extracted_ids)
+}
+
+fn get_first_billnr(vec: &Vec<DBEntry>) -> Option<(String, i32)> {
+    vec.get(0).map(|s| (s.bill_number.clone(), s.billnr_int))
+}
+
+fn get_all_billnr_ints(bills: &Vec<DBEntry>) -> Vec<i32> {
+    let extracted_billnrs: Vec<i32> = if !bills.is_empty() {
+        bills.iter().map(|item| item.billnr_int).collect()
+    } else {
+        Vec::new()
+    };
+    extracted_billnrs
+}
+
+pub fn get_billnr_if_exists(company: &str, billdate: &NaiveDate) -> DBResult<Option<(String, i32)>> {
+
+    let bills = query_for_company_in_month(company, billdate)?;
+    let (res) = get_first_billnr(&bills);
+
+    match &res {
+        Some(res) => println!("Found existing billnr: {:?}", res),
+        None => println!("No existing billnr found")
+     }
+
+    Ok(res)
+}
+
+pub fn get_new_billnr(billdate: &NaiveDate, billnr_base: &str) -> DBResult<(String, i32)> {
+    let bills = query_for_month(billdate)?;
+    let billnrs = get_all_billnr_ints(&bills);
+
+    let highest_int = match billnrs.iter().max() {
+        Some(&max_value) => {
+            let new_billnr_int = max_value + 1;
+            new_billnr_int
+        }
+        None => {1},
+    };
+
+    let billnr = format!("{billnr_base}{billnr_int:02}",
+        billnr_base = billnr_base,
+        billnr_int = &highest_int,
+    );
+    println!("New billnumber: {:?}", billnr);
+    Ok((billnr, highest_int))
 }
 
 pub fn print_all_db_entries() -> DBResult<()> {

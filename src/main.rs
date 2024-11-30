@@ -66,7 +66,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     println!("Running for the following companies: {:#?}", all_companies);
 
-    let mut billcounter = 1;
+    // let mut billcounter = 1;
 
     for company_str in all_companies {
         println!("Processing {:}", &company_str);
@@ -77,12 +77,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let csv_path = data_dir.join(file_str);
         let company = String::from(&company_str);
-        // let billnr = 4;
-        let billnr = format!(
-            "{billnr_base}{billnr_count:02}",
-            billnr_base = subdir_data_str,
-            billnr_count = billcounter,
-        );
+
+        let (billnr, billnr_int) = match db::get_billnr_if_exists(&company, &billdate)? {
+            Some((billnr, billnr_int)) => (billnr, billnr_int),
+            None => {
+                let (billnr, billnr_int) = db::get_new_billnr(&billdate, &subdir_data_str)?;
+                (billnr, billnr_int)
+            }
+        };
+        println!("The bill number is {:?}", billnr);
 
         println!("Trying to read csv from {:?}", &csv_path);
 
@@ -124,14 +127,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let xml = ebill::create_xml(&amounts, billdate, &config.bill_config);
 
-        let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str);
+        let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str, &billnr_int);
 
         // must be a cli argument
         if args.maildraft {
             let _ = mail::create_mail_draft(&config.mailconfig, &company_config, signed_pdf_data, &pdf_filename)?;
         }
         
-        billcounter += 1;
+        // billcounter += 1;
         println!("{:}: Done\n", &company_str);
     }
 
