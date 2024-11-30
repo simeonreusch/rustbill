@@ -26,12 +26,17 @@ struct Args {
     date: String,
     #[arg(short, long)]
     maildraft: bool,
+    #[arg(long, default_value_t = String::from("config.yaml"))] // Optional date in YYYY-MM-DD format
+    config: String,
 }
 
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
     let date = args.date;
+    let config_name = &args.config;
+    let config = read_config(&config_name)?;
+
     db::create_db_if_needed()?;
 
     let billdate = date_utils::parse_date_or_default(&date)?;
@@ -50,9 +55,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let pdfdir = Path::new(&binding);
 
     println!("Data dir is {:?}", data_dir);
-
-    let config_path = "config.yaml";
-    let config = read_config(&config_path)?;
 
     let mut all_companies: Vec<String> = Vec::new();
 
@@ -104,7 +106,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         };
         println!("The bill number is {:?}", billnr);
 
-        let company_config = config_reader::get_company_config(&config_path, &company_str)?;
+        let company_config = config_reader::get_company_config(&config_name, &company_str)?;
 
         let amounts = calculate::calculate_amounts(&minutes_total, &company_config.hourly_fee)?;
 
@@ -121,6 +123,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             qrcode,
             hourly_fee: amounts.hourly_fee,
             data_dir: data_dir.to_string_lossy().into_owned(),
+            config_name: config_name.clone(),
         };
 
         let pdf_data = pdf_gen::generate_pdf(pdf_content)?;

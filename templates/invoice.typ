@@ -10,6 +10,7 @@
 #let qrcode = inputs.at("qrcode")
 #let hourly_fee = inputs.at("hourly_fee")
 #let data_dir = inputs.at("data_dir")
+#let config_name = inputs.at("config_name")
 
 #let data_with_header = csv(data_dir + "/" + recipient + ".csv", delimiter: ";")
 #let data = data_with_header.slice(1)
@@ -17,7 +18,7 @@
 #set text(lang: "de")
 
 #let config = configread(
-  yaml("/config.yaml"), recipient
+  yaml("/" + config_name), recipient
 )
 #let address = config.sender_street + ", " + config.sender_postcode + " " + config.sender_city
 

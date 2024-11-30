@@ -29,7 +29,6 @@ bank_config:
   name: Your name
 
 companies:
-
   CustomerCompany:
     email: mail@customer-company.com
     subject: Bill for stuff done for customer company

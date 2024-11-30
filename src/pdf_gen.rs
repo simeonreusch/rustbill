@@ -34,6 +34,7 @@ pub struct Content {
     pub qrcode: String,
     pub hourly_fee: f64,
     pub data_dir: String,
+    pub config_name: String,
 }
 
 impl From<Content> for Dict {

@@ -70,6 +70,9 @@ fn read_config_yaml(path: &str) -> Result<Value, ExtractError> {
 }
 
 pub fn read_config(path: &str) -> Result<Config, ExtractError> {
+
+    println!("Reading config from {:?}", path);
+    
     let yaml_content = fs::read_to_string(path)?;
 
     let config: Config = serde_yaml::from_str(&yaml_content)?;
