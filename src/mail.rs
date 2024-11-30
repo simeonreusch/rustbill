@@ -10,7 +10,7 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum MailError{
-    #[error("IMAP error")]
+    #[error("IMAP error. Check credentials or connection.")]
     IMAPError(#[from] imap::error::Error),
     #[error("Password error")]
     PasswordError(#[from] env::VarError),

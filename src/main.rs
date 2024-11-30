@@ -22,6 +22,8 @@ struct Args {
     company: Option<String>,
     #[arg(short, long, default_value_t = String::from(""))] // Optional date in YYYY-MM-DD format
     date: String,
+    #[arg(short, long)]
+    maildraft: bool,
 }
 
 
@@ -124,8 +126,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str);
 
-
-        let _ = mail::create_mail_draft(&config.mailconfig, &company_config, signed_pdf_data, &pdf_filename);
+        // must be a cli argument
+        if args.maildraft {
+            let _ = mail::create_mail_draft(&config.mailconfig, &company_config, signed_pdf_data, &pdf_filename)?;
+        }
         
         billcounter += 1;
         println!("{:}: Done\n", &company_str);
