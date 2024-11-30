@@ -1,7 +1,3 @@
-basepath: "/Users/simeon/Desktop/WTS"
-
-stamp_url: https://waytoosoon.de
-
 mailconfig:
   email: simeon.reusch@waytoosoon.de
   email_from: Simeon Reusch

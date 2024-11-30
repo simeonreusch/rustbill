@@ -9,3 +9,4 @@ rustbill
 bills
 db.sql
 .env
+config.yaml
