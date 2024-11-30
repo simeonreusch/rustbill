@@ -78,15 +78,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let csv_path = data_dir.join(file_str);
         let company = String::from(&company_str);
 
-        let (billnr, billnr_int) = match db::get_billnr_if_exists(&company, &billdate)? {
-            Some((billnr, billnr_int)) => (billnr, billnr_int),
-            None => {
-                let (billnr, billnr_int) = db::get_new_billnr(&billdate, &subdir_data_str)?;
-                (billnr, billnr_int)
-            }
-        };
-        println!("The bill number is {:?}", billnr);
-
         println!("Trying to read csv from {:?}", &csv_path);
 
         let csv_data = csv_reader::read_csv(&csv_path)?;
@@ -97,6 +88,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("{:?} has no entries. This is expected for some. Skipping\n", &company_str);
             continue;
         }
+
+        let (billnr, billnr_int) = match db::get_billnr_if_exists(&company, &billdate)? {
+            Some((billnr, billnr_int)) => (billnr, billnr_int),
+            None => {
+                let (billnr, billnr_int) = db::get_new_billnr(&billdate, &subdir_data_str)?;
+                (billnr, billnr_int)
+            }
+        };
+        println!("The bill number is {:?}", billnr);
 
         let company_config = config_reader::get_company_config(&config_path, &company_str)?;
 
