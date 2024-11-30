@@ -9,8 +9,15 @@ The idea is to have a web frontend where you track hours worked, and a list of c
 - Read a config (YAML) ✅
 - Create invoice PDF with typst ✅
 - Create e-bill-XML and attach to pdf 🟡 (standard needed (EN16931 not yet fully implemented in Rust))
+- sign PDF 🟡 (X509 crypt works, but adding a field to a PDF does not yet work)
 - Log to database ✅ (needed to switch from a json-db to a SQL db due to paucity of packages)
 - Upload mail draft via IMAP ✅
+
+## Usage
+- Rename `config_example.yaml` to `config.yaml` and modify to your needs.
+- Compile with `cargo build -r`
+- Copy the binary from `target/release/rustbill` to `.`
+- Use the CLI with `./rustbill --help`. Without further parameters, all companies defined in your config are iterated over, and the date defaults to the last day of the current month.
 
 ## Speedup vs Python:
 
