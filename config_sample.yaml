@@ -19,6 +19,8 @@ bill_config:
   company_web: sample.com
   vat_id: DE12345678
   tax_id: 12/345/67890
+  color: "#99d0ba"
+  text: anbei meine Rechnung bezüglich bla bla bla.
 
 bank_config:
   bank_name: Your Bank

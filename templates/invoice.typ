@@ -15,7 +15,7 @@
 #let data = data_with_header.slice(1)
 
 #set text(lang: "de")
-#let wtsgreen = rgb("99d0ba")
+
 #let config = configread(
   yaml("/config.yaml"), recipient
 )
@@ -56,7 +56,7 @@
 
 Sehr geehrte Damen und Herren,
 
-anbei meine Rechnung bezüglich Einrichtung und Wartung von IT-Infrastruktur bei Ihnen. Eine detaillierte Stundenübersicht befindet sich auf der nächsten Seite.
+#config.billtext
 
 #let minutes_total = sum_minutes(data, 1)
 #let amount_total = sum_amounts(data, 1, hourly_fee)
@@ -67,7 +67,7 @@ anbei meine Rechnung bezüglich Einrichtung und Wartung von IT-Infrastruktur bei
   align: center,
   stroke: none,
   fill: (x, y) =>
-    if y == 0 { wtsgreen }
+    if y == 0 { config.color }
 )
 
 
@@ -99,10 +99,10 @@ diesen Code mit ihrer Banking-App scannen.
 #set table(
   stroke: none,
   fill: (x, y) =>
-    if y == 0 { wtsgreen },
+    if y == 0 { config.color },
   inset: (right: 1.5em)
 )
 #set par(justify: false)
 
-#overview_detailed(data, minutes_total, amount_total, 1, hourly_fee)
+#overview_detailed(data, minutes_total, amount_total, 1, hourly_fee, config.color)
 

@@ -431,9 +431,9 @@
   iban: contents.bank_config.iban,
   vat_id: contents.bill_config.vat_id,
   tax_id: contents.bill_config.tax_id,
+  color: rgb(contents.bill_config.color),
+  billtext: contents.bill_config.text,
 )
-
-#let wtsgreen = rgb("99d0ba")
 
 #let footerdef(config) =  {
   set align(left)
@@ -442,7 +442,7 @@
     columns: (1fr,1fr),
     rows: (auto, auto,auto),
     gutter: 8pt,
-    grid.hline(y: 0, stroke: 0.5pt+wtsgreen, position:top),
+    grid.hline(y: 0, stroke: 0.5pt + config.color, position:top),
     align: left,
     [],
     [],
@@ -460,22 +460,22 @@
   align: (left, left, right),
   columns: (auto, auto, auto),
   inset: 5pt,
-  table.hline(stroke: wtsgreen + 0.5pt),
-  table.vline(stroke: wtsgreen + 0.5pt),
+  table.hline(stroke: config.color + 0.5pt),
+  table.vline(stroke: config.color + 0.5pt),
   table.header(
     [*Pos.*], [*Bezeichnung*], [*Betrag*]
   ),
-  table.vline(stroke: wtsgreen + 0.5pt),
+  table.vline(stroke: config.color + 0.5pt),
   [1],
   [Supportdienstleistungen / #hours_total Stunden zu #config.hourly_fee € (Netto)],
   [#format_currency(amount_total) €],
   [2],
   [Umsatzsteuer (19 %)],
   [#format_currency(vat) €],
-  table.hline(stroke: wtsgreen + 0.5pt),
+  table.hline(stroke: config.color + 0.5pt),
   table.cell(colspan: 2)[*Gesamtbetrag*],
   [*#format_currency(amount_with_vat) €*],
-  table.hline(stroke: wtsgreen + 0.5pt),
+  table.hline(stroke: config.color + 0.5pt),
 )
 
 #let format_unsplit_str(input) = {
@@ -495,11 +495,11 @@
   if len == 1 {format_unsplit_str(split_str.at(0))} else {format_split_str(split_str.at(0), split_str.at(1))}
 }
 
-#let overview_detailed(data, minutes_total, amount_total, pos, hourly_fee) = table(
+#let overview_detailed(data, minutes_total, amount_total, pos, hourly_fee, custom_color) = table(
   align: (left, left, left, right, right),
   columns: (auto,auto,auto, auto, auto),
-  table.hline(stroke: wtsgreen + 0.5pt),
-  table.vline(stroke: wtsgreen + 0.5pt),
+  table.hline(stroke: custom_color + 0.5pt),
+  table.vline(stroke: custom_color + 0.5pt),
   table.header(
     [*Pos.*], [*Datum*],[*Bezeichnung*], [*Minuten*], [*Betrag*]
   ),
@@ -511,9 +511,9 @@
     (str(int(pos)), date, description, minutes, amount_formatted)
     pos = pos + 1
   }, 
-  table.vline(stroke: wtsgreen + 0.5pt),
-  table.hline(stroke: wtsgreen + 0.5pt),
+  table.vline(stroke: custom_color + 0.5pt),
+  table.hline(stroke: custom_color + 0.5pt),
   table.cell(colspan: 3)[*Summe*],
   [*#minutes_total*],[*#format_currency(amount_total)*],
-  table.hline(stroke: wtsgreen + 0.5pt),
+  table.hline(stroke: custom_color + 0.5pt),
 )

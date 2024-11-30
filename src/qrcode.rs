@@ -12,7 +12,7 @@ pub enum QRGenErrors{
 }
 type QrResult<T> = Result<T, QRGenErrors>;
 
-pub fn create_qrcode(bank_config: &BankConfig, amount_total: &str, company: &str, billdate: &NaiveDate) -> QrResult<String> {
+pub fn create_qrcode(bank_config: &BankConfig, amount_total: &str, company: &str, billdate: &NaiveDate, color: &str) -> QrResult<String> {
     
     let amount_formatted = String::from("EUR") + &amount_total;
 
@@ -32,7 +32,7 @@ pub fn create_qrcode(bank_config: &BankConfig, amount_total: &str, company: &str
 
     let code = QrCode::new(byte_slice);
 
-    let image = code?.render::<svg::Color>().build();
+    let image = code?.render::<svg::Color>().dark_color(svg::Color(color)).build();
 
     Ok(image)
 

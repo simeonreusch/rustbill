@@ -42,6 +42,7 @@ pub struct BillConfig {
   pub email: String,
   pub vat_id: String,
   pub tax_id: String,
+  pub color: String,
 }
 
 #[derive(Debug, Deserialize)]
