@@ -131,10 +131,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let signed_pdf_data = sign::sign_pdf(pdf_data)?;
 
-        let pdf_filename = pdf_gen::save_pdf(&signed_pdf_data, pdfdir, billdate, &company_str)?;
-
+        println!("length after signing: {:?}", signed_pdf_data.len());
 
         let xml = ebill::create_xml(&amounts, billdate, &config.bill_config);
+
+        let pdf_with_xml = ebill::add_xml_to_pdf(&signed_pdf_data, xml)?;
+
+        println!("length after adding xml: {:?}", pdf_with_xml.len());
+    
+        let pdf_filename = pdf_gen::save_pdf(&pdf_with_xml, pdfdir, billdate, &company_str)?;
 
         let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str, &billnr_int);
 

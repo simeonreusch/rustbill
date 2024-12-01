@@ -1,8 +1,21 @@
+use typst::foundations::Dict;
 use zugferd::{InvoiceBuilder,InvoiceTypeCode,CountryCode,CurrencyCode,SpecificationLevel};
 use chrono::NaiveDate;
+use std::io::Cursor;
 use crate::config_reader::BillConfig;
+use lopdf::{Document, Object, Dictionary, Stream};
 use crate::calculate::Amounts;
+use thiserror::Error;
 
+#[derive(Debug, Error)]
+pub enum XMLError {
+    #[error("io Error")]
+    IoError(#[from] std::io::Error),
+    #[error("pdf bytestream read error")]
+    ByteStreamError(#[from] lopdf::Error),
+}
+
+type XMLResult<T> = Result<T, XMLError>;
 
 pub fn create_xml(amounts: &Amounts, bill_date: NaiveDate, bill_config: &BillConfig) -> String {
     
@@ -42,4 +55,54 @@ pub fn create_xml(amounts: &Amounts, bill_date: NaiveDate, bill_config: &BillCon
     println!("Generated ZUGFeRD XML");
 
     xml_string
+}
+
+
+pub fn add_xml_to_pdf(input_bytes: &Vec<u8>, xml_content: String) -> XMLResult<Vec<u8>> {
+    let mut doc = Document::load_mem(input_bytes)?;
+    
+    let xml_stream = Stream::new(
+        Dictionary::from_iter(vec![
+            ("Type", Object::Name(b"EmbeddedFile".to_vec())),
+            ("Subtype", Object::Name(b"text/xml".to_vec())),
+        ]),
+        xml_content.as_bytes().to_vec(),
+    );
+
+    let xml_stream_id = doc.add_object(xml_stream);
+
+    // Create a file specification for the embedded XML
+    let file_spec = Dictionary::from_iter(vec![
+        ("Type", Object::Name(b"Filespec".to_vec())),
+        ("F", Object::String(
+            b"factur-x.xml".to_vec(),
+            lopdf::StringFormat::Literal,
+        )),
+        ("EF", Dictionary::from_iter(vec![
+            ("F", Object::Reference(xml_stream_id)),
+        ]).into()),
+    ]);
+
+    let file_spec_id = doc.add_object(file_spec);
+        
+    let catalog_obj = doc.catalog_mut()?;
+
+
+    let names = Object::Array(vec![
+        Object::String(b"factur-x.xml".to_vec(), lopdf::StringFormat::Literal,),
+        Object::Reference(file_spec_id)
+    ]);
+
+    let embedded_files = Dictionary::from_iter(vec![("Names", names)]);
+
+    let obj = Dictionary::from_iter(vec![("EmbeddedFiles", Object::from(embedded_files))]);
+
+    catalog_obj.set("Names", obj);
+
+    let mut buffer = Vec::new();
+    doc.save_to(&mut Cursor::new(&mut buffer))?;
+    
+    println!("Added xml to pdf bytestream");
+    Ok(buffer)
+
 }
