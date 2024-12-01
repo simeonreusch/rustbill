@@ -1,3 +1,4 @@
+patch = { crates-io = { pdf_signing = { path = "/Users/simeon/.rhack/pdf_signing-0.3.0" } } }
 [package]
 name = "rustbill"
 version = "0.1.0"
@@ -31,3 +32,4 @@ dotenv = "0.15.0"
 native-tls = "0.2.12"
 lettre = "0.11.10"
 rand = "0.8.5"
+lopdf = "0.34.0"
