@@ -16,6 +16,7 @@ mod db;
 mod mail;
 
 
+
 #[derive(Parser, Debug)]
 #[command(name = "cli_parser")]
 #[command(about = "A parser with a default argument (the company) and an optional date flag")]
@@ -40,9 +41,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     db::create_db_if_needed()?;
 
     let billdate = date_utils::parse_date_or_default(&date)?;
-    let billdate_formatted = billdate.format("%d.%m.%Y").to_string();
-    let duedate = date_utils::calculate_due_date(billdate);
-    let duedate_formatted = duedate?.format("%d.%m.%Y").to_string();
+    let billdate_formatted = &billdate.format("%d.%m.%Y").to_string();
+    let duedate = date_utils::calculate_due_date(billdate)?;
+    let duedate_formatted = &duedate.format("%d.%m.%Y").to_string();
+    
+    
 
     let basedir_data = Path::new("data");
     let subdir_data_str = format!(
@@ -129,31 +132,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let pdf_data = pdf_gen::generate_pdf(pdf_content)?;
         println!("Generated pdf");
 
-        let signed_pdf_data = sign::sign_pdf(pdf_data)?;
+        // let signed_pdf_data = sign::sign_pdf(pdf_data)?;
 
-        println!("length after signing: {:?}", signed_pdf_data.len());
+        let xml = ebill::create_ebill_xml(&billnr, &amounts, billdate, duedate, &config.bill_config, &company_config, &config.bank_config)?;
 
-        let xml = ebill::create_xml(&amounts, billdate, &config.bill_config);
-
-        let pdf_with_xml = ebill::add_xml_to_pdf(&signed_pdf_data, xml)?;
-
-        println!("length after adding xml: {:?}", pdf_with_xml.len());
+        let pdf_with_xml = ebill::add_xml_to_pdf(&pdf_data, xml)?;
     
-        let pdf_filename = pdf_gen::save_pdf(&pdf_with_xml, pdfdir, billdate, &company_str)?;
+        let saved_pdf_filename = pdf_gen::save_pdf(&pdf_with_xml, pdfdir, billdate, &company_str)?;
 
         let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str, &billnr_int);
 
-        // must be a cli argument
         if args.maildraft {
-            let _ = mail::create_mail_draft(&config.mailconfig, &company_config, signed_pdf_data, &pdf_filename)?;
+            let _ = mail::create_mail_draft(&config.mailconfig, &company_config, pdf_data, &saved_pdf_filename)?;
         }
         
-        // billcounter += 1;
         println!("{:}: Done\n", &company_str);
     }
 
-    println!("\nTABLE AFTER EVERYTHING:\n");
+    // println!("\nTABLE AFTER EVERYTHING:\n");
 
-    let _ = db::print_all_db_entries()?;
+    // let _ = db::print_all_db_entries()?;
     Ok(())
 }

@@ -14,11 +14,13 @@ pub enum AmountCalcs{
 type CalculationResult<T> = Result<T, AmountCalcs>;
 type CurrencyResult<T> = Result<T, AmountCalcs>;
 
+#[derive(Debug)]
 pub struct Amounts {
     pub net: f64,
     pub vat: f64,
     pub total: f64,
     pub hourly_fee: f64,
+    pub hours_total: f64,
 }
 
 fn calculate_amount_net(minutes_total: &i32, hourly_fee: &f64) -> CalculationResult<f64> {
@@ -42,8 +44,10 @@ pub fn calculate_amounts(minutes_total: &i32, hourly_fee: &f64) -> CalculationRe
     let amount_net = calculate_amount_net(minutes_total, hourly_fee)?;
     let amount_vat = calculate_vat(&amount_net)?;
     let amount_total = calculate_amount_total(&amount_net, &amount_vat)?;
+    let hours_total = *minutes_total as f64 / 60.0;
 
-    let amounts =  Amounts {net: amount_net, vat: amount_vat, total: amount_total, hourly_fee: hourly_fee.clone()};
+    let amounts =  Amounts {net: amount_net, vat: amount_vat, total: amount_total, hourly_fee: hourly_fee.clone(), hours_total};
+
     Ok(amounts)
 }
 

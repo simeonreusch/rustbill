@@ -15,8 +15,6 @@ pub enum SignError {
     FormError(#[from] FormError),
     #[error("Signing error")]
     SigningCerror(),
-    #[error("No field to sign")]
-    NoFieldError(),
 }
 
 #[derive(Debug, Error)]
@@ -27,7 +25,7 @@ pub enum FormError {
     FormInsertError(#[from] std::io::Error),
 }
 
-
+#[allow(dead_code)]
 pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<Vec<u8>, SignError> {
 
     println!("initial length: {:}", pdf_data.len());
@@ -75,6 +73,7 @@ pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<Vec<u8>, SignError> {
     }
 }
 
+#[allow(dead_code)]
 fn add_form_field_to_pdf(input_bytes: &Vec<u8>) -> Result<Vec<u8>, FormError> {
     // Load the PDF document
     let mut doc = Document::load_mem(input_bytes)?;

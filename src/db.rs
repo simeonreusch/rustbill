@@ -5,8 +5,6 @@ use thiserror::Error;
 
 #[derive(Debug, Error)]
 pub enum DBError{
-    #[error("DB could not be created")]
-    DBCreationError,
     #[error("DB connection error")]
     DBConnectionError(#[from] rusqlite::Error),
 }
@@ -214,6 +212,7 @@ pub fn get_new_billnr(billdate: &NaiveDate, billnr_base: &str) -> DBResult<(Stri
     Ok((billnr, highest_int))
 }
 
+#[allow(dead_code)]
 pub fn print_all_db_entries() -> DBResult<()> {
 
     let query_str = "SELECT * FROM bill".to_string();

@@ -21,6 +21,14 @@ pub struct BankConfig {
     pub name: String,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct CompanyAddress {
+    pub name: String,
+    pub city: String,
+    pub postcode: String,
+    pub addressline: String,
+
+}
 
 #[derive(Debug, Deserialize)]
 pub struct CompanyConfig {
@@ -29,6 +37,7 @@ pub struct CompanyConfig {
     pub greeting_to: String,
     pub greeting_from: String,
     pub hourly_fee: f64,
+    pub address: CompanyAddress,
 }
 
 #[derive(Debug, Deserialize)]
@@ -40,6 +49,9 @@ pub struct BillConfig {
   pub country: String,
   pub postcode: String,
   pub email: String,
+  pub telephone: String,
+  pub bill_item: String,
+  pub bill_item_description: String,
   pub vat_id: String,
   pub tax_id: String,
   pub color: String,

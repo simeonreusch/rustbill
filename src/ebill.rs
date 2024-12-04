@@ -1,8 +1,7 @@
-use typst::foundations::Dict;
-use zugferd::{InvoiceBuilder,InvoiceTypeCode,CountryCode,CurrencyCode,SpecificationLevel};
-use chrono::NaiveDate;
+use minijinja::{Environment, context};
+use chrono::{NaiveDate};
 use std::io::Cursor;
-use crate::config_reader::BillConfig;
+use crate::config_reader::{BankConfig, BillConfig, CompanyConfig};
 use lopdf::{Document, Object, Dictionary, Stream};
 use crate::calculate::Amounts;
 use thiserror::Error;
@@ -13,49 +12,11 @@ pub enum XMLError {
     IoError(#[from] std::io::Error),
     #[error("pdf bytestream read error")]
     ByteStreamError(#[from] lopdf::Error),
+    #[error("Template error")]
+    TemplateError(#[from] minijinja::Error),
 }
 
 type XMLResult<T> = Result<T, XMLError>;
-
-pub fn create_xml(amounts: &Amounts, bill_date: NaiveDate, bill_config: &BillConfig) -> String {
-    
-    let mut invoice_builder = InvoiceBuilder::new();
-
-    invoice_builder.set_business_process("process1")
-        .set_invoice_type_code(InvoiceTypeCode::CommercialInvoice)
-        .set_invoice_nr("15")
-        .set_date_of_issue(bill_date)
-        .set_buyer_reference("bla")
-        .set_sellers_name(&*bill_config.company)
-        .set_sellers_specified_legal_organization("LegalOrg-001")
-        .set_sellers_postal_trade_address_country_code(CountryCode::Germany)
-        .set_sellers_specified_tax_registration("DE123456789")
-        .set_sellers_postal_trade_address_city_name(&*bill_config.city)
-        .set_buyers_name("Buyer Inc.")
-        .set_buyers_specified_legal_organization("LegalOrg-002")
-        .set_buyers_order_specified_document("OD-2024-001")
-        .set_invoice_currency_code(CurrencyCode::Euro);
-
-    invoice_builder.set_monetary_summation_tax_basis_total_amount(amounts.net)
-    .set_monetary_summation_tax_total_amount(amounts.vat)
-    .set_monetary_summation_grand_total_amount(amounts.total)
-    .set_monetary_summation_due_payable_amount(amounts.total);
-
-    let mut xml_string: String = String::new();
-
-    match invoice_builder.to_xml_string(SpecificationLevel::Minimum) {
-        Ok(string_returned_by_function) => {
-            xml_string = string_returned_by_function;
-        },
-        Err(e) => {
-            println!("Something happened at the XML generation: {}",e);
-        }
-    }
-
-    println!("Generated ZUGFeRD XML");
-
-    xml_string
-}
 
 
 pub fn add_xml_to_pdf(input_bytes: &Vec<u8>, xml_content: String) -> XMLResult<Vec<u8>> {
@@ -102,7 +63,58 @@ pub fn add_xml_to_pdf(input_bytes: &Vec<u8>, xml_content: String) -> XMLResult<V
     let mut buffer = Vec::new();
     doc.save_to(&mut Cursor::new(&mut buffer))?;
     
-    println!("Added xml to pdf bytestream");
+    println!("Added Zugferd xml to pdf bytestream");
     Ok(buffer)
 
+}
+
+pub fn create_ebill_xml(billnr:&str, amounts: &Amounts, bill_date: NaiveDate, due_date: NaiveDate, bill_config: &BillConfig, company_config: &CompanyConfig, bank_config: &BankConfig) -> XMLResult<String> {
+    let mut env = Environment::new();
+
+    println!("Creating Zugferd xml using template");
+
+    env.add_template("ebill", include_str!("../templates/ebill.xml"))?;
+
+    let amount_net = (amounts.net * 100.0).ceil() / 100.0;
+    let amount_vat = (amounts.vat * 100.0).ceil() / 100.0;
+    let amount_total = (amounts.total * 100.0).ceil()  / 100.0;
+
+    let bill_date_formatted = &bill_date.format("%Y-%m-%d").to_string();
+    let due_date_formatted = &due_date.format("%Y-%m-%d").to_string();
+
+
+    let template = env.get_template("ebill")?;
+    let xml = template.render(context! { 
+        issuer_name => bill_config.name, 
+        issuer_company => bill_config.company,
+        issuer_street => bill_config.street,
+        issuer_city => bill_config.city,
+        issuer_postcode => bill_config.postcode,
+        issuer_vat_id => bill_config.vat_id,
+        issuer_tax_id => bill_config.tax_id,
+        issuer_mail => bill_config.email,
+        issuer_country_code => bill_config.country,
+        issuer_phone => bill_config.telephone,
+        issuer_iban => bank_config.iban,
+        issuer_bic => bank_config.bic,
+        issuer_account_holder => bank_config.name,
+        receiver_mail => company_config.email,
+        receiver_name => company_config.address.name,
+        receiver_street => company_config.address.addressline,
+        receiver_city => company_config.address.city,
+        receiver_postcode => company_config.address.postcode,
+        bill_item => bill_config.bill_item,
+        bill_item_description => bill_config.bill_item_description,
+        quantity => amounts.hours_total,
+        hourly_fee => amounts.hourly_fee,
+        amount_net => amount_net,
+        amount_vat => amount_vat,
+        amount_total => amount_total,
+        bill_number => billnr,
+        bill_date => bill_date_formatted,
+        due_date => due_date_formatted,
+    })?;
+
+
+    Ok(xml)
 }
