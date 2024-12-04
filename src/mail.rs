@@ -26,8 +26,8 @@ type MailResult<T> = Result<T, MailError>;
 
 fn get_imap_session(config: &MailConfig) -> MailResult<imap::Session<TlsStream<TcpStream>>> {
     dotenv().ok();
-    let mailuser = env::var("BILLBOT_MAIL_USER")?;
-    let mailpass = env::var("BILLBOT_MAIL_PASSWORD")?;
+    let mailuser = env::var("RUSTBILL_MAIL_USER")?;
+    let mailpass = env::var("RUSTBILL_MAIL_PASSWORD")?;
     let tls = native_tls::TlsConnector::builder().build()?;
     let client = imap::connect((config.imap_server.to_string(), config.imap_port), config.imap_server.to_string(), &tls)?;
 
