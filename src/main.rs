@@ -136,7 +136,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str, &billnr_int);
 
         if args.maildraft {
-            let _ = mail::create_mail_draft(&config.mailconfig, &company_config, &billdate,pdf_data, &saved_pdf_filename)?;
+            let _ = mail::create_mail_draft(&config.mailconfig, &company_config, &billdate,pdf_with_xml, &saved_pdf_filename)?;
         }
         
         println!("{:}: Done\n", &company_str);
