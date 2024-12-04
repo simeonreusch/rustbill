@@ -21,6 +21,9 @@ The idea is to have a web frontend where you track hours worked, and a list of c
 
 The data is expected to lie in `./data/YYYY-MM/company_name.csv` within a `csv` table with three columns (`Date`, `Minutes`, `Description`), separated by `;`. A sample table can be found at `./sample/SampleCompany.csv`
 
+## Mail config
+- You need an `.env` file containing `RUSTBILL_MAIL_USER=your_mail_user` and `RUSTBILL_MAIL_PASSWORD=your_mail_password` in the base directory.
+
 ## Note
 - Currently, German is the default. To fix this, modify the lines in the relevant templates; this should be straightforward.
 
