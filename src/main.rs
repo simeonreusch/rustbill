@@ -113,7 +113,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let decimal_amount_str = calculate::to_euro_string(&amounts.total)?;
 
-        let qrcode = qrcode::create_qrcode(&config.bank_config, &decimal_amount_str, &company, &billdate, &config.bill_config.color)?;
+        let qrcode = qrcode::create_qrcode(&config.bank_config, &decimal_amount_str, &billdate, &billnr, &config.bill_config.color)?;
 
         let pdf_content = pdf_gen::Content {
             company: company.to_string(),

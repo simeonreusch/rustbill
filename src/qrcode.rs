@@ -12,13 +12,13 @@ pub enum QRGenErrors{
 }
 type QrResult<T> = Result<T, QRGenErrors>;
 
-pub fn create_qrcode(bank_config: &BankConfig, amount_total: &str, company: &str, billdate: &NaiveDate, color: &str) -> QrResult<String> {
+pub fn create_qrcode(bank_config: &BankConfig, amount_total: &str, billdate: &NaiveDate, billnr: &str, color: &str) -> QrResult<String> {
     
     let amount_formatted = String::from("EUR") + &amount_total;
 
     let billdate_formatted = billdate.format("%d.%m.%Y").to_string();
 
-    let subject = String::from("")+ &company + &String::from(" IT RE vom ") + &billdate_formatted;
+    let subject = format!("RE {billnr} vom {date}", billnr=billnr, date=billdate_formatted);
     
     let raw_string = format!(
         "BCD\n001\n2\nSCT\n{bic}\n{issuer}\n{iban}\n{amount}\nSCVE\n{subject}\n",
