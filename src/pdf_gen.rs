@@ -72,7 +72,7 @@ pub fn generate_pdf(data: Content) -> Result<Vec<u8>, PdfError> {
 pub fn save_pdf(data: &Vec<u8>, pdf_dir: &Path, billdate: NaiveDate, company: &str) -> Result<String, PdfError> {
     let pdf_filename = format!(
         "{date}_Rechnung_{company}_{month_pretty}_{year}.pdf",
-        date = billdate.format("%Y-%m-%d"),
+        date = billdate.format("%Y_%m_%d"),
         company = company,
         month_pretty = billdate.format_localized("%B", Locale::de_DE),
         year = billdate.format("%Y"),
