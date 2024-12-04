@@ -5,13 +5,13 @@
 The idea is to have a web frontend where you track hours worked, and a list of companies that you regularly bill in your config. If you execute rustbill, it creates invoices for all logged activity (stored as csv tables), renders these to pdf. A ZUGFeRD-compliant electronic bill xml is created and attached to the pdf. Finally, it creates mail drafts with your invoices and logs the bill to an SQL database for future accounting.
 
 ## What it does
-- Read a csv per customer (hours worked) ✅
-- Read a config (YAML) ✅
-- Create invoice PDF with [typst](https://typst.app) ✅
-- Create e-bill-XML and attach to pdf ✅ ([EN16931](https://de.wikipedia.org/wiki/ZUGFeRD) compliant)
-- sign PDF 🟡 (X509 crypt works, but adding a field to a PDF does not yet work)
-- Log to database ✅ (needed to switch from a json-db to a SQL db due to paucity of packages)
-- Upload mail draft via IMAP ✅
+- ✅ Read a csv per customer (hours worked)
+- ✅ Read a config (YAML)
+- ✅ Create invoice PDF with [typst](https://typst.app), including a QR code for quick payment
+- ✅ Create e-bill-XML and attach to pdf ([EN16931](https://de.wikipedia.org/wiki/ZUGFeRD) compliant)
+- 🟡 Sign PDF (X509 crypt works, but adding a field to a PDF does not yet work)
+- ✅ Log to database (needed to switch from a json-db to a SQL db due to paucity of packages)
+- ✅ Upload mail draft via IMAP
 
 ## Usage
 - Move `./sample/config.yaml` to `./config.yaml` and modify to your needs.
