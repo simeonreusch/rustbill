@@ -32,9 +32,6 @@ pub fn sign_pdf(pdf_data: Vec<u8>) -> Result<Vec<u8>, SignError> {
     let pdf_data = add_form_field_to_pdf(&pdf_data)?;
     println!("with field length: {:}", pdf_data.len());
 
-    // let pdf_file_name = "test2.pdf";
-    // let pdf_data = std::fs::read(format!("./{}", pdf_file_name)).unwrap();
-
     let cert_str = std::fs::read_to_string("./certs/pdf_cert.crt")?;
     let cert: CapturedX509Certificate = CapturedX509Certificate::from_pem(cert_str)?;
     let privkey_str = std::fs::read_to_string("./certs/pkcs8.pem")?;
@@ -87,14 +84,12 @@ fn add_form_field_to_pdf(input_bytes: &Vec<u8>) -> Result<Vec<u8>, FormError> {
         ("T", Object::String(b"signature_field".to_vec(), lopdf::StringFormat::Literal)), // Field Name
         ("Ff", Object::Integer(1)), // Field Flags, set to 0 for default
     ]);
-    // Get the pages from the document
+
     let pages = doc.get_pages();
 
-    // Iterate over the pages and add annotation to the first one
     if let Some((_page_number, &page_id)) = pages.iter().next() {
         let widget_id = doc.add_object(Object::Dictionary(widget_annot));
 
-        // Get the page dictionary
         if let Ok(Object::Dictionary(page_dict)) = doc.get_object_mut(page_id) {
             let annots = page_dict.get_mut(b"Annots").unwrap();
 
@@ -103,7 +98,6 @@ fn add_form_field_to_pdf(input_bytes: &Vec<u8>) -> Result<Vec<u8>, FormError> {
                     arr.push(Object::Reference(widget_id));
                 }
                 _ => {
-                    // If "Annots" does not exist or is not an array, create a new array with the widget reference
                     page_dict.set("Annots", Object::Array(vec![Object::Reference(widget_id)]));
                 }
             }
@@ -111,8 +105,6 @@ fn add_form_field_to_pdf(input_bytes: &Vec<u8>) -> Result<Vec<u8>, FormError> {
     }
 
     let mut buffer = Cursor::new(Vec::new());
-
-    // Save the updated PDF
     doc.save_to(&mut buffer)?;
     let res_vec = buffer.into_inner();
 

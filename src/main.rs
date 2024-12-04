@@ -25,10 +25,9 @@ struct Args {
     date: String,
     #[arg(short, long)]
     maildraft: bool,
-    #[arg(long, default_value_t = String::from("config.yaml"))] // Optional date in YYYY-MM-DD format
+    #[arg(long, default_value_t = String::from("config.yaml"))] // to create a mail draft
     config: String,
 }
-
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -42,8 +41,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let billdate_formatted = &billdate.format("%d.%m.%Y").to_string();
     let duedate = date_utils::calculate_due_date(billdate)?;
     let duedate_formatted = &duedate.format("%d.%m.%Y").to_string();
-    
-    
 
     let basedir_data = Path::new("data");
     let subdir_data_str = format!(
@@ -74,8 +71,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // We shuffle the companies to shuffle the bill numbers
     let mut rng = thread_rng();
     all_companies.shuffle(&mut rng);
-
-    // let mut billcounter = 1;
 
     for company_str in all_companies {
         println!("Processing {:}", &company_str);
@@ -148,7 +143,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // println!("\nTABLE AFTER EVERYTHING:\n");
-
     // let _ = db::print_all_db_entries()?;
     Ok(())
 }
