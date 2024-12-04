@@ -15,8 +15,6 @@ mod calculate;
 mod db;
 mod mail;
 
-
-
 #[derive(Parser, Debug)]
 #[command(name = "cli_parser")]
 #[command(about = "A parser with a default argument (the company) and an optional date flag")]
