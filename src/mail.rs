@@ -1,6 +1,7 @@
 use imap;
 use native_tls;
 use native_tls::TlsStream;
+use chrono::{NaiveDate, Locale};
 use std::net::TcpStream;
 use std::env;
 use lettre::message::{header::ContentType, header, Attachment, SinglePart, MultiPart, Message};
@@ -38,14 +39,20 @@ fn get_imap_session(config: &MailConfig) -> MailResult<imap::Session<TlsStream<T
     Ok(imap_session)
 }
 
-pub fn create_mail_draft(mailconfig_global: &MailConfig, mailconfig_company: &CompanyConfig, pdf_content: Vec<u8>, pdf_name: &str) -> MailResult<()> {
+pub fn create_mail_draft(mailconfig_global: &MailConfig, mailconfig_company: &CompanyConfig, billdate: &NaiveDate, pdf_content: Vec<u8>, pdf_name: &str) -> MailResult<()> {
 
     let mut imap_session = get_imap_session(mailconfig_global)?;
+
+    let mail_text = format!("{text} im {month} {year}.",
+        text=mailconfig_global.email_text,
+        month=billdate.format_localized("%B", Locale::de_DE),
+        year=billdate.format("%Y"),
+    );
 
     let text = format!(
         "{greeting_to}\n\n{body}\n\n{greeting_from}\n",
         greeting_to = mailconfig_company.greeting_to,
-        body = mailconfig_global.email_text,
+        body = mail_text,
         greeting_from = mailconfig_company.greeting_from,
     );
 
