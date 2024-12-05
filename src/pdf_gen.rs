@@ -60,8 +60,7 @@ pub fn generate_pdf(data: Content) -> Result<Vec<u8>, PdfError> {
         .output?;
 
 
-    // let pdf_standard = [PdfStandard::A_2b];
-    let pdf_standard = [PdfStandard::V_1_7];
+    let pdf_standard = [PdfStandard::A_2b];
     let pdf_standards = PdfStandards::new(&pdf_standard).unwrap();
     let pdf_options: PdfOptions = PdfOptions {standards: pdf_standards, page_ranges: None, timestamp: None, ident: Smart::Auto};
     let pdf = typst_pdf::pdf(&doc, &pdf_options)
