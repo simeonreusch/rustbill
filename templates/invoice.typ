@@ -73,7 +73,7 @@ Sehr geehrte Damen und Herren,
 
 
 #overview_short(hours_total, amount_total, vat, amount_with_vat, config)
-
+#amount_with_vat
 Bitte überweisen Sie den Gesamtbetrag von *#format_currency(amount_with_vat)* innerhalb von 10 Werktagen -- also bis zum *#due_date* -- auf das angeführte Konto.
 #v(0.3cm)
 

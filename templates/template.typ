@@ -245,7 +245,7 @@
   }
 }
 
-#let format_currency(number, locale: "de") = {
+#let format_currency(number) = {
     let precision = 2
     assert(precision > 0)
     let s = str(calc.round(number, digits: precision))
@@ -257,12 +257,7 @@
     for i in range(precision - after_dot.len() + 1){
       s = s + "0"
     }
-    // fake de locale
-    if locale == "de" {
-      s.replace(".", ",")
-    } else {
-      s
-    }
+    (s + " €").replace(".", ",")
   }
 
 #let sum_minutes(array, idx) = {
@@ -468,13 +463,13 @@
   table.vline(stroke: config.color + 0.5pt),
   [1],
   [Supportdienstleistungen / #hours_total Stunden zu #config.hourly_fee € (Netto)],
-  [#format_currency(amount_total) €],
+  [#format_currency(amount_total)],
   [2],
   [Umsatzsteuer (19 %)],
-  [#format_currency(vat) €],
+  [#format_currency(vat)],
   table.hline(stroke: config.color + 0.5pt),
   table.cell(colspan: 2)[*Gesamtbetrag*],
-  [*#format_currency(amount_with_vat) €*],
+  [*#format_currency(amount_with_vat)*],
   table.hline(stroke: config.color + 0.5pt),
 )
 
@@ -487,13 +482,6 @@
   input1 + "," + input2 + " €"
 }
 
-#let format_currency(input) = {
-  let input = calc.round(float(input), digits: 2)
-  let input_str = str(input)
-  let split_str = input_str.split(".")
-  let len = split_str.len()
-  if len == 1 {format_unsplit_str(split_str.at(0))} else {format_split_str(split_str.at(0), split_str.at(1))}
-}
 
 #let overview_detailed(data, minutes_total, amount_total, pos, hourly_fee, custom_color) = table(
   align: (left, left, left, right, right),
