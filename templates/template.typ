@@ -1,5 +1,8 @@
 // Author: Simeon Reusch (mail@simeonreusch.com)
 // License: BSD-3-Clause
+// #import "@preview/plotst:0.2.0": axis, plot, bar_chart
+#import "axis.typ": axis
+#import "plotting.typ": plot, bar_chart
 
 #let letter-formats = (
   "DIN-5008-A": (
@@ -505,3 +508,89 @@
   [*#minutes_total*],[*#format_currency(amount_total)*],
   table.hline(stroke: custom_color + 0.5pt),
 )
+
+#let get_days(data) = {
+  data.map(entry => {
+    let date = entry.at(0)
+    let minutes = entry.at(1)
+    let day = str(int(date.split(".").at(0)))
+    day
+  })
+}
+
+#let calculate_step(max_minutes) = {
+  let step = max_minutes / 4
+  if step > 60 {
+    60
+  } else if step < 60 and step > 30 {
+    30
+  } else {
+    15
+  }
+}
+
+#let is_leap_year(year) = {
+  if calc.rem(year, 4) == 0 and calc.rem(year, 100) != 0 or calc.rem(year,400) == 0 {
+    true
+  } else {
+    false
+  }
+}
+
+#let get_nr_days(data) = {
+  let month = int(data.at(0).at(0).split(".").at(1))
+  let year = int(data.at(0).at(0).split(".").at(2))
+  let feb = if is_leap_year(year) {29} else {28}
+  let days_in_month = (31, feb, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+  days_in_month.at(month - 1)
+}
+
+#let get_month_dict(data) = {
+  let nr_days = get_nr_days(data)
+  let month_days = range(1, nr_days + 1)
+  let month_array = month_days.map(day => 
+  {
+    (str(day), 0)
+  })
+  let month_dict = month_array.to-dict()
+  month_dict
+}
+
+#let sum_minutes_by_day(data) = {
+  let day_sums = get_month_dict(data)
+  let minutes = data.map(entry => {
+    let minutes = entry.at(1)
+    int(minutes)
+  })
+  let days = get_days(data)
+  let to_sum = days.zip(minutes)
+
+  let test = day_sums.at("4")
+
+  
+  for (day, minutes) in to_sum {
+    let minutes_so_far = day_sums.at(day)
+    day_sums.insert(day, minutes_so_far + minutes)
+  }
+  day_sums.pairs().map(item => (item.at(1), int(item.at(0))))
+}
+
+#let overview_plot(data, color) = {
+  let nr_days = get_nr_days(data)
+  let days = get_days(data)
+  let minutes = data.map(entry => {
+    let minutes = entry.at(1)
+    int(minutes)
+  })
+  let to_sum = days.zip(minutes)
+  let to_plot = sum_minutes_by_day(data)
+  
+  let step = calculate_step(calc.max(..minutes))
+  let ymax = calc.max(..to_plot.map(item => item.at(0)))+1
+ 
+
+  let x_axis = axis(min: 0, max: nr_days+1, step: 1, location: "bottom", show_arrows: false, title: "Tag")
+  let y_axis = axis(min: 0, max: ymax, step: step, location: "left", show_markings: true, helper_lines: true, show_arrows: false, title: "Minuten")
+  let pl = plot(axes: (x_axis, y_axis), data: to_plot)
+  bar_chart(pl, (100%, 35%), bar_width: 100%, fill: color, caption: "Stundenübersicht", stroke: black)
+}

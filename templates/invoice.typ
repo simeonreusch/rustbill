@@ -1,5 +1,5 @@
 #import sys: inputs
-#import "templates/template.typ": letter-simple, sum_minutes, sum_amounts, format_currency, configread, footerdef, minutes_to_hours, overview_short, overview_detailed
+#import "templates/template.typ": letter-simple, sum_minutes, sum_amounts, format_currency, configread, footerdef, minutes_to_hours, overview_short, overview_detailed, overview_plot
 
 
 #let recipient = inputs.at("company")
@@ -107,3 +107,9 @@ diesen Code mit ihrer Banking-App scannen.
 
 #overview_detailed(data, minutes_total, amount_total, 1, hourly_fee, config.color)
 
+#show figure.caption: none
+
+#v(1cm)
+= Grafische Stundenübersicht
+#v(1cm)
+#overview_plot(data, config.color)
