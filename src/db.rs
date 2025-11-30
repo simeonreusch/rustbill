@@ -136,7 +136,7 @@ fn query_db(query_str: &str) -> DBResult<Vec<DBEntry>> {
 }
 
 fn query_for_company_in_month(company: &str, billdate: &NaiveDate) -> DBResult<Vec<DBEntry>> {
-    let query_str = format!("SELECT * FROM bill WHERE company == '{company}' AND month == '{month}'", company=company, month = billdate.month());
+    let query_str = format!("SELECT * FROM bill WHERE company == '{company}' AND month == '{month}' AND year == '{year}'", company=company, month = billdate.month(), year = billdate.year());
 
     let bills = query_db(&query_str)?;
 
@@ -144,7 +144,7 @@ fn query_for_company_in_month(company: &str, billdate: &NaiveDate) -> DBResult<V
 }
 
 fn query_for_month(billdate: &NaiveDate) -> DBResult<Vec<DBEntry>> {
-    let query_str = format!("SELECT * FROM bill WHERE month == '{month}'", month = billdate.month());
+    let query_str = format!("SELECT * FROM bill WHERE month == '{month}' AND year == '{year}'", month = billdate.month(), year = billdate.year());
 
     let bills = query_db(&query_str)?;
 
