@@ -17,15 +17,22 @@ mod mail;
 
 #[derive(Parser, Debug)]
 #[command(name = "cli_parser")]
-#[command(about = "A parser with a default argument (the company) and an optional date flag")]
+#[command(about = "Create invoices")]
 struct Args {
+    /// Specify a company to create an invoice for
     #[arg(short, long)]
     company: Option<String>,
-    #[arg(short, long, default_value_t = String::from(""))] // Optional date in YYYY-MM-DD format
+    /// Optional date in YYYY-MM-DD format
+    #[arg(short, long, default_value_t = String::from(""))] 
     date: String,
+    /// Create a mail draft
     #[arg(short, long)]
     maildraft: bool,
-    #[arg(long, default_value_t = String::from("config.yaml"))] // to create a mail draft
+    /// The hourly rate in EUR
+    #[arg(short, long)]
+    rate: Option<f64>,
+    /// The config file to use
+    #[arg(long, default_value_t = String::from("config.yaml"))]
     config: String,
 }
 
@@ -103,8 +110,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("The bill number is {:?}", billnr);
 
         let company_config = config_reader::get_company_config(&config_name, &company_str)?;
-
-        let amounts = calculate::calculate_amounts(&minutes_total, &company_config.hourly_fee)?;
+        
+        let hourly_fee = match args.rate {
+            Some(rate) => rate as f64,
+            None => company_config.hourly_fee,
+        };
+        let amounts = calculate::calculate_amounts(&minutes_total, &hourly_fee)?;
 
         let decimal_amount_str = calculate::to_euro_string(&amounts.total)?;
 

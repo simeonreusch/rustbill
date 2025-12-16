@@ -1,5 +1,8 @@
 #import sys: inputs
-#import "templates/template.typ": letter-simple, sum_minutes, sum_amounts, format_currency, configread, footerdef, minutes_to_hours, overview_short, overview_detailed, overview_plot
+#import "templates/template.typ": (
+  configread, footerdef, format_currency, letter-simple, minutes_to_hours, overview_detailed, overview_plot,
+  overview_short, sum_amounts, sum_minutes,
+)
 
 
 #let recipient = inputs.at("company")
@@ -18,7 +21,8 @@
 #set text(lang: "de")
 
 #let config = configread(
-  yaml("/" + config_name), recipient
+  yaml("/" + config_name),
+  recipient,
 )
 #let address = config.sender_street + ", " + config.sender_postcode + " " + config.sender_city
 
@@ -40,7 +44,7 @@
   folding-marks: false,
   hole-mark: false,
 
- 
+
   recipient: [
     #config.recipient_name\
     #config.recipient_street\
@@ -67,12 +71,11 @@ Sehr geehrte Damen und Herren,
 #set table(
   align: center,
   stroke: none,
-  fill: (x, y) =>
-    if y == 0 { config.color }
+  fill: (x, y) => if y == 0 { config.color },
 )
 
 
-#overview_short(hours_total, amount_total, vat, amount_with_vat, config)
+#overview_short(hours_total, amount_total, vat, amount_with_vat, hourly_fee, config)
 
 Bitte überweisen Sie den Gesamtbetrag von *#format_currency(amount_with_vat)* innerhalb von 10 Werktagen -- also bis zum *#due_date* -- auf das angeführte Konto.
 #v(0.3cm)
@@ -99,9 +102,8 @@ diesen Code mit ihrer Banking-App scannen.
 
 #set table(
   stroke: none,
-  fill: (x, y) =>
-    if y == 0 { config.color },
-  inset: (right: 1.5em)
+  fill: (x, y) => if y == 0 { config.color },
+  inset: (right: 1.5em),
 )
 #set par(justify: false)
 
