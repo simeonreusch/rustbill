@@ -2,6 +2,7 @@ use std::path::Path;
 use clap::Parser;
 use rand::thread_rng;
 use rand::seq::SliceRandom;
+use rand::Rng;
 use chrono::Datelike;
 use config_reader::read_config;
 mod pdf_gen;
@@ -28,6 +29,9 @@ struct Args {
     /// Create a mail draft
     #[arg(short, long)]
     maildraft: bool,
+    /// Send the mail via SMTP (instead of creating a draft)
+    #[arg(short = 's', long)]
+    send: bool,
     /// The hourly rate in EUR
     #[arg(short, long)]
     rate: Option<f64>,
@@ -79,7 +83,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut rng = thread_rng();
     all_companies.shuffle(&mut rng);
 
+    // Whether the previous company's mail was sent; used to stagger
+    // mails with a delay to avoid rate-limiting by the mail provider.
+    let mut prev_sent = false;
+
     for company_str in all_companies {
+        if prev_sent {
+            let delay_ms = rng.gen_range(1000..=2000);
+            println!("Waiting {} ms before sending the next mail", delay_ms);
+            std::thread::sleep(std::time::Duration::from_millis(delay_ms));
+        }
+        prev_sent = false;
         println!("Processing {:}", &company_str);
         let mut file_str = company_str.clone();
         if !file_str.ends_with(".csv") {
@@ -146,8 +160,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let _ = db::add_to_db(&company, &billdate, &billnr, &amounts.total, &decimal_amount_str, &billnr_int);
 
-        if args.maildraft {
-            let _ = mail::create_mail_draft(&config.mailconfig, &company_config, &billdate,pdf_with_xml, &saved_pdf_filename)?;
+        if args.send {
+            mail::send_mail(&config.mailconfig, &company_config, &billdate, pdf_with_xml, &saved_pdf_filename)?;
+            println!("Sent mail to {:?}", &company_config.email);
+            prev_sent = true;
+        } else if args.maildraft {
+            mail::create_mail_draft(&config.mailconfig, &company_config, &billdate, pdf_with_xml, &saved_pdf_filename)?;
         }
         
         println!("{:}: Done\n", &company_str);

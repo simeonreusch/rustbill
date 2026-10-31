@@ -3,6 +3,9 @@ mailconfig:
   email_from: Your Name
   imap_server: imap.sample.com
   imap_port: 993
+  smtp_server: smtp.sample.com
+  smtp_port: 465
+  sent_folder: "Sent Items"
   email_text: here the bill as usual.
 
 bill_config:

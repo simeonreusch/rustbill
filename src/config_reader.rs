@@ -62,6 +62,9 @@ pub struct MailConfig {
     pub email: String,
     pub imap_server: String,
     pub imap_port: u16,
+    pub smtp_server: String,
+    pub smtp_port: u16,
+    pub sent_folder: String,
     pub email_text: String,
 }
 
